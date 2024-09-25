@@ -3,7 +3,7 @@ import { RouterView } from 'vue-router'
 </script>
 
 <template>
-  <div class="app-container">
+  <div  class="app-container bg-gradient-to-br from-gray-900 via-indigo-900 to-black overflow-hidden">
     <transition name="page" mode="out-in">
       <RouterView />
     </transition>
@@ -17,8 +17,7 @@ import { RouterView } from 'vue-router'
   left: 0;
   width: 100%;
   height: 100%;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: hidden;
 }
 
 .page-enter-active,
@@ -40,7 +39,7 @@ body {
   margin: 0;
   padding: 0;
   font-family: 'Inter', sans-serif;
-  @apply bg-gray-900 text-white;
+  @apply bg-gray-900 text-white overflow-y-auto;
 }
 
 /* 自定义滚动条样式 */
