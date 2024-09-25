@@ -175,7 +175,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, inject } from 'vue'
+import { ref, inject, onMounted } from 'vue'
 import { UploadCloudIcon, SendIcon } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import BorderProgressBar from '../components/BorderProgressBar.vue'
@@ -258,4 +258,10 @@ const handleSubmit = () => {
 const toRetrieve = () => {
   router.push('/')
 }
+
+// 使用 onMounted 钩子延迟加载一些非关键资源或初始化
+onMounted(() => {
+  // 这里可以放置一些非立即需要的初始化代码
+  console.log('SendFileView mounted')
+})
 </script>

@@ -2,8 +2,11 @@
 import { ref, watchEffect, provide, onMounted } from 'vue'
 import { RouterView } from 'vue-router'
 import ThemeToggle from './components/ThemeToggle.vue'
+import { useRouter } from 'vue-router'
 
 const isDarkMode = ref(false)
+const isLoading = ref(false)
+const router = useRouter()
 
 // 检查系统颜色模式
 const checkSystemColorScheme = () => {
@@ -38,13 +41,28 @@ watchEffect(() => {
   document.documentElement.classList.toggle('dark', isDarkMode.value)
 })
 
+router.beforeEach((to, from, next) => {
+  isLoading.value = true
+  next()
+})
+
+router.afterEach(() => {
+  setTimeout(() => {
+    isLoading.value = false
+  }, 200) // 添加一个小延迟，以确保组件已加载
+})
+
 provide('isDarkMode', isDarkMode)
 provide('setColorMode', setColorMode)
+provide('isLoading', isLoading)
 </script>
 
 <template>
   <div :class="['app-container', isDarkMode ? 'dark' : 'light']">
     <ThemeToggle v-model="isDarkMode" />
+    <div v-if="isLoading" class="loading-overlay">
+      <div class="loading-spinner"></div>
+    </div>
     <RouterView v-slot="{ Component }">
       <transition name="fade" mode="out-in">
         <component :is="Component" :key="$route.fullPath" />
@@ -80,5 +98,32 @@ provide('setColorMode', setColorMode)
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 3px solid #fff;
+  border-top: 3px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 </style>
