@@ -44,73 +44,71 @@
           </button>
         </div>
 
-        <div class="grid grid-cols-1 gap-8">
-          <!-- 文件上传区域 -->
-          <div
-            v-if="sendType === 'file'"
-            class="rounded-xl p-6 flex flex-col items-center justify-center border-2 border-dashed transition-all duration-300 group cursor-pointer relative"
-            :class="[
-              isDarkMode
-                ? 'bg-gray-800 bg-opacity-50 border-gray-600 hover:border-indigo-500'
-                : 'bg-gray-100 border-gray-300 hover:border-indigo-500'
-            ]"
-            @click="triggerFileUpload"
-            @dragover.prevent
-            @drop.prevent="handleFileDrop"
-          >
-            <input
-              id="file-upload"
-              type="file"
-              class="hidden"
-              @change="handleFileUpload"
-              ref="fileInput"
-            />
-            <div class="absolute inset-0 w-full h-full" v-if="uploadProgress > 0">
-              <BorderProgressBar :progress="uploadProgress" />
-            </div>
-            <UploadCloudIcon
+        <transition name="fade" mode="out-in">
+          <div v-if="sendType === 'file'" key="file" class="grid grid-cols-1 gap-8">
+            <!-- 文件上传区域 -->
+            <div
+              class="rounded-xl p-8 flex flex-col items-center justify-center border-2 border-dashed transition-all duration-300 group cursor-pointer relative"
               :class="[
-                'w-16 h-16 transition-colors duration-300',
                 isDarkMode
-                  ? 'text-gray-400 group-hover:text-indigo-400'
-                  : 'text-gray-600 group-hover:text-indigo-600'
+                  ? 'bg-gray-800 bg-opacity-50 border-gray-600 hover:border-indigo-500'
+                  : 'bg-gray-100 border-gray-300 hover:border-indigo-500'
               ]"
-            />
-            <p
-              :class="[
-                'mt-4 text-sm transition-colors duration-300',
-                isDarkMode
-                  ? 'text-gray-400 group-hover:text-indigo-400'
-                  : 'text-gray-600 group-hover:text-indigo-600'
-              ]"
+              @click="triggerFileUpload"
+              @dragover.prevent
+              @drop.prevent="handleFileDrop"
             >
-              {{ selectedFile ? selectedFile.name : '点击或拖放文件到此处上传' }}
-            </p>
-            <p :class="['mt-2 text-xs', isDarkMode ? 'text-gray-500' : 'text-gray-400']">
-              支持各种常见格式，最大20MB
-            </p>
+              <input
+                id="file-upload"
+                type="file"
+                class="hidden"
+                @change="handleFileUpload"
+                ref="fileInput"
+              />
+              <div class="absolute inset-0 w-full h-full" v-if="uploadProgress > 0">
+                <BorderProgressBar :progress="uploadProgress" />
+              </div>
+              <UploadCloudIcon
+                :class="[
+                  'w-16 h-16 transition-colors duration-300',
+                  isDarkMode
+                    ? 'text-gray-400 group-hover:text-indigo-400'
+                    : 'text-gray-600 group-hover:text-indigo-600'
+                ]"
+              />
+              <p
+                :class="[
+                  'mt-4 text-sm transition-colors duration-300',
+                  isDarkMode
+                    ? 'text-gray-400 group-hover:text-indigo-400'
+                    : 'text-gray-600 group-hover:text-indigo-600'
+                ]"
+              >
+                {{ selectedFile ? selectedFile.name : '点击或拖放文件到此处上传' }}
+              </p>
+              <p :class="['mt-2 text-xs', isDarkMode ? 'text-gray-500' : 'text-gray-400']">
+                支持各种常见格式，最大20MB
+              </p>
+            </div>
           </div>
-
-          <!-- 文本输入区域 -->
-          <div v-if="sendType === 'text'" class="flex flex-col">
-            <label for="text-content" :class="['text-sm font-medium mb-2', isDarkMode ? 'text-gray-300' : 'text-gray-700']">
-              文本内容
-            </label>
-            <textarea
-              id="text-content"
-              v-model="textContent"
-              rows="8"
-              :class="[
-                'flex-grow px-4 py-3 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 resize-none',
-                isDarkMode
-                  ? 'bg-gray-800 bg-opacity-50 text-white'
-                  : 'bg-white text-gray-900 border border-gray-300'
-              ]"
-              placeholder="在此输入要发送的文本..."
-            ></textarea>
-          </div>
-        </div>
-
+          <div v-else key="text" class="grid grid-cols-1 gap-8">
+              <!-- 文本输入区域 -->
+              <div v-if="sendType === 'text'" class="flex flex-col">
+                <textarea
+                  id="text-content"
+                  v-model="textContent"
+                  rows="7"
+                  :class="[
+                    'flex-grow px-4 py-3 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 resize-none',
+                    isDarkMode
+                      ? 'bg-gray-800 bg-opacity-50 text-white'
+                      : 'bg-white text-gray-900 border border-gray-300'
+                  ]"
+                  placeholder="在此输入要发送的文本..."
+                ></textarea>
+              </div>
+            </div>
+        </transition>
         <!-- 过期方式选择 -->
         <div class="flex flex-col space-y-4">
           <label :class="['text-sm font-medium', isDarkMode ? 'text-gray-300' : 'text-gray-700']">过期方式</label>
@@ -265,3 +263,22 @@ onMounted(() => {
   console.log('SendFileView mounted')
 })
 </script>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.fade-enter-to,
+.fade-leave-from {
+  opacity: 1;
+  transform: translateY(0);
+}
+</style>
