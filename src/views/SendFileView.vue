@@ -127,7 +127,6 @@
 <script setup>
 import { ref } from 'vue'
 import { UploadCloudIcon, SendIcon } from 'lucide-vue-next'
-import { useRouter } from 'vue-router'
 const sendType = ref('file')
 const selectedFile = ref(null)
 const textContent = ref('')
@@ -135,7 +134,6 @@ const fileInput = ref(null)
 const expirationMethod = ref('time')
 const expirationTime = ref('')
 const expirationViews = ref('')
-const router = useRouter()
 const triggerFileUpload = () => {
   fileInput.value.click()
 }
@@ -146,9 +144,6 @@ const handleFileUpload = (event) => {
 
 const handleFileDrop = (event) => {
   selectedFile.value = event.dataTransfer.files[0]
-}
-const toSend=()=>{
-  router.push('/')
 }
 const handleSubmit = () => {
   if (sendType.value === 'file' && !selectedFile.value) {
