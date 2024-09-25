@@ -13,11 +13,11 @@
           <div class="flex justify-center mb-8">
             <div class="rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 p-1 animate-spin-slow">
               <div class="rounded-full bg-gray-900 p-2">
-                <LockIcon class="w-8 h-8 text-white" />
+                <BoxIcon class="w-8 h-8 text-white" />
               </div>
             </div>
           </div>
-          <h2 class="text-3xl font-extrabold text-center mb-6" :class="[isDarkMode ? 'text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300' : 'text-indigo-600']">FileCodeBox</h2>
+          <h2 @click="toSend"  class="text-3xl cursor-pointer font-extrabold text-center mb-6" :class="[isDarkMode ? 'text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300' : 'text-indigo-600']">FileCodeBox</h2>
           <form @submit.prevent="handleSubmit">
             <div class="mb-6 relative">
               <label for="password" class="block text-sm font-medium mb-2" :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']">取件口令</label>
@@ -42,7 +42,7 @@
                   <EyeOffIcon v-else class="w-5 h-5" />
                 </button>
               </div>
-              <div class="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 transition-all duration-300 ease-in-out" :class="{'w-full': isInputFocused, 'w-0': !isInputFocused}"></div>
+              <div class="absolute -bottom-0.5 left-2 h-0.5 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 transition-all duration-300 ease-in-out" :class="{'w-97-100': isInputFocused, 'w-0': !isInputFocused}"></div>
               <p v-if="error" class="text-red-500 text-sm mt-1">{{ error }}</p>
             </div>
             <button
@@ -107,19 +107,6 @@
       </div>
     </transition>
 
-    <!-- 帮助弹窗 -->
-    <transition name="fade">
-      <div v-if="showHelp" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="p-6 rounded-lg max-w-md w-full mx-4" :class="[isDarkMode ? 'bg-gray-800' : 'bg-white']">
-          <h3 class="text-xl font-bold mb-4" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">需要帮助？</h3>
-          <p class="mb-4" :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']">如果您遇到任何问题或需要协助，请联系我们的客户支持团队。我们将很乐意为您提供帮助。</p>
-          <p class="mb-4" :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']">客服热线：400-123-4567</p>
-          <p class="mb-4" :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']">电子邮箱：support@example.com</p>
-          <button @click="showHelp = false" class="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600 transition duration-300">关闭</button>
-        </div>
-      </div>
-    </transition>
-
     <!-- 记录详情弹窗 -->
     <transition name="fade">
       <div v-if="selectedRecord" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -138,7 +125,7 @@
 
 <script setup>
 import { ref, inject } from 'vue'
-import { LockIcon, EyeIcon, EyeOffIcon, ArrowRightIcon, ShieldCheckIcon, ClipboardListIcon, XIcon, TrashIcon } from 'lucide-vue-next'
+import { BoxIcon, EyeIcon, EyeOffIcon, ArrowRightIcon, ShieldCheckIcon, ClipboardListIcon, XIcon, TrashIcon } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -148,7 +135,6 @@ const password = ref('')
 const showPassword = ref(false)
 const isInputFocused = ref(false)
 const error = ref('')
-const showHelp = ref(false)
 const selectedRecord = ref(null)
 const showDrawer = ref(false)
 
@@ -200,6 +186,10 @@ const deleteRecord = (id) => {
 const toggleDrawer = () => {
   showDrawer.value = !showDrawer.value
 }
+
+const toSend = () => {
+  router.push('/send')
+}
 </script>
 
 <style scoped>
@@ -248,5 +238,8 @@ const toggleDrawer = () => {
 .drawer-enter-from,
 .drawer-leave-to {
   transform: translateX(100%);
+}
+.w-97-100{
+  width: 97%;
 }
 </style>
