@@ -9,7 +9,6 @@
       >
       FileCodeBox
       </h2>
-
     <form @submit.prevent="handleSubmit" class="space-y-8">
       <!-- 发送类型选择 -->
       <div class="flex justify-center space-x-4 mb-6">
