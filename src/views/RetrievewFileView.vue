@@ -200,11 +200,6 @@ const handleSubmit = () => {
   }
   records.value.unshift(newRecord)
   showDrawer.value = true
-  
-  // 模拟成功取件后的操作
-  setTimeout(() => {
-    router.push('/send')
-  }, 1500)
 }
 
 const viewDetails = (record) => {
