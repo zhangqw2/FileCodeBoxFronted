@@ -54,17 +54,6 @@
               <div class="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 transition-all duration-300 ease-in-out" :class="{'w-full': isInputFocused, 'w-0': !isInputFocused}"></div>
               <p v-if="error" class="text-red-500 text-sm mt-1">{{ error }}</p>
             </div>
-            <div class="mb-6 flex items-center">
-              <input
-                id="remember"
-                v-model="rememberPassword"
-                type="checkbox"
-                class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-              />
-              <label for="remember" class="ml-2 block text-sm text-gray-300">
-                记住密码
-              </label>
-            </div>
             <button
               type="submit"
               class="w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-bold py-3 px-4 rounded-lg hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50 transition duration-300 transform hover:scale-105 hover:shadow-lg relative overflow-hidden group"
@@ -199,7 +188,6 @@ const handleSubmit = () => {
   error.value = ''
   // 这里添加提交逻辑
   console.log('提交的口令:', password.value)
-  console.log('记住密码:', rememberPassword.value)
   // 模拟添加新记录
   const newRecord = {
     id: records.value.length + 1,
