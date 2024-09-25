@@ -1,23 +1,14 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-indigo-900 to-black p-4 overflow-hidden">
-    <div class="absolute inset-0 overflow-hidden">
-      <div v-for="(blob, index) in blobs" :key="index" 
-           :class="[
-             'absolute rounded-full mix-blend-multiply filter blur-3xl opacity-20',
-             `animate-blob-${index + 1}`,
-             `bg-${blob.color}-500`,
-             `w-${blob.size} h-${blob.size}`
-           ]"
-           :style="{
-             left: `${blob.left}%`,
-             top: `${blob.top}%`,
-             animationDelay: `${index * 2}s`
-           }"
-      ></div>
-    </div>
-    
+  <div class="min-h-screen flex items-center justify-center p-4 overflow-hidden transition-colors duration-300">
     <div class="w-full max-w-md relative z-10">
-      <div class="bg-white bg-opacity-10 backdrop-filter backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden border border-gray-700 transform transition-all duration-300 ">
+      <div 
+        class="rounded-3xl shadow-2xl overflow-hidden border transform transition-all duration-300"
+        :class="[
+          isDarkMode 
+            ? 'bg-gray-800 bg-opacity-50 backdrop-filter backdrop-blur-xl border-gray-700' 
+            : 'bg-white border-gray-200'
+        ]"
+      >
         <div class="p-8">
           <div class="flex justify-center mb-8">
             <div class="rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 p-1 animate-spin-slow">
@@ -26,17 +17,17 @@
               </div>
             </div>
           </div>
-          <h2 class="text-3xl font-extrabold text-center text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300 mb-6">FileCodeBox</h2>
+          <h2 class="text-3xl font-extrabold text-center mb-6" :class="[isDarkMode ? 'text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300' : 'text-indigo-600']">FileCodeBox</h2>
           <form @submit.prevent="handleSubmit">
             <div class="mb-6 relative">
-              <label for="password" class="block text-sm font-medium text-gray-300 mb-2">取件口令</label>
+              <label for="password" class="block text-sm font-medium mb-2" :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']">取件口令</label>
               <div class="relative">
                 <input
                   id="password"
                   v-model="password"
                   :type="showPassword ? 'text' : 'password'"
-                  class="w-full px-4 py-3 bg-gray-800 bg-opacity-50 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 pr-10"
-                  :class="{ 'ring-2 ring-red-500': error }"
+                  class="w-full px-4 py-3 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 pr-10"
+                  :class="[isDarkMode ? 'bg-gray-700 bg-opacity-50' : 'bg-gray-100', { 'ring-2 ring-red-500': error }]"
                   placeholder="请输入您的口令"
                   required
                   @focus="isInputFocused = true"
@@ -73,12 +64,12 @@
             </router-link>
           </div>
         </div>
-        <div class="px-8 py-4 bg-gray-800 bg-opacity-50 flex justify-between items-center">
-          <span class="text-sm text-gray-300 flex items-center">
+        <div class="px-8 py-4 bg-opacity-50 flex justify-between items-center" :class="[isDarkMode ? 'bg-gray-800' : 'bg-gray-100']">
+          <span class="text-sm flex items-center" :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']">
             <ShieldCheckIcon class="w-4 h-4 mr-1 text-green-400" />
             安全加密
           </span>
-          <button @click="toggleDrawer" class="text-sm text-indigo-400 hover:text-indigo-300 transition duration-300 flex items-center">
+          <button @click="toggleDrawer" class="text-sm hover:text-indigo-300 transition duration-300 flex items-center" :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']">
             取件记录
             <ClipboardListIcon class="w-4 h-4 ml-1" />
           </button>
@@ -88,25 +79,25 @@
 
     <!-- 抽屉式取件记录 -->
     <transition name="drawer">
-      <div v-if="showDrawer" class="fixed inset-y-0 right-0 w-full sm:w-96 bg-gray-900 bg-opacity-95 backdrop-filter backdrop-blur-lg shadow-2xl z-50 overflow-hidden flex flex-col">
-        <div class="flex justify-between items-center p-6 border-b border-gray-700">
-          <h3 class="text-2xl font-bold text-white">取件记录</h3>
-          <button @click="toggleDrawer" class="text-gray-400 hover:text-white transition duration-300">
+      <div v-if="showDrawer" class="fixed inset-y-0 right-0 w-full sm:w-96 bg-opacity-95 backdrop-filter backdrop-blur-lg shadow-2xl z-50 overflow-hidden flex flex-col" :class="[isDarkMode ? 'bg-gray-900' : 'bg-white']">
+        <div class="flex justify-between items-center p-6 border-b" :class="[isDarkMode ? 'border-gray-700' : 'border-gray-200']">
+          <h3 class="text-2xl font-bold" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">取件记录</h3>
+          <button @click="toggleDrawer" class="hover:text-white transition duration-300" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-800']">
             <XIcon class="w-6 h-6" />
           </button>
         </div>
         <div class="flex-grow overflow-y-auto p-6">
           <transition-group name="list" tag="div" class="space-y-4">
-            <div v-for="record in records" :key="record.id" class="bg-gray-800 bg-opacity-50 rounded-lg p-4 flex justify-between items-center">
+            <div v-for="record in records" :key="record.id" class="bg-opacity-50 rounded-lg p-4 flex justify-between items-center" :class="[isDarkMode ? 'bg-gray-800' : 'bg-gray-100']">
               <div>
-                <p class="text-white font-medium">{{ record.filename }}</p>
-                <p class="text-gray-400 text-sm">{{ record.date }}</p>
+                <p class="font-medium" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">{{ record.filename }}</p>
+                <p class="text-sm" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-600']">{{ record.date }}</p>
               </div>
               <div class="flex space-x-2">
-                <button @click="viewDetails(record)" class="text-indigo-400 hover:text-indigo-300 transition duration-300">
+                <button @click="viewDetails(record)" class="hover:text-indigo-300 transition duration-300" :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']">
                   <EyeIcon class="w-5 h-5" />
                 </button>
-                <button @click="deleteRecord(record.id)" class="text-red-400 hover:text-red-300 transition duration-300">
+                <button @click="deleteRecord(record.id)" class="hover:text-red-300 transition duration-300" :class="[isDarkMode ? 'text-red-400' : 'text-red-600']">
                   <TrashIcon class="w-5 h-5" />
                 </button>
               </div>
@@ -119,11 +110,11 @@
     <!-- 帮助弹窗 -->
     <transition name="fade">
       <div v-if="showHelp" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-gray-800 p-6 rounded-lg max-w-md w-full mx-4">
-          <h3 class="text-xl font-bold text-white mb-4">需要帮助？</h3>
-          <p class="text-gray-300 mb-4">如果您遇到任何问题或需要协助，请联系我们的客户支持团队。我们将很乐意为您提供帮助。</p>
-          <p class="text-gray-300 mb-4">客服热线：400-123-4567</p>
-          <p class="text-gray-300 mb-4">电子邮箱：support@example.com</p>
+        <div class="p-6 rounded-lg max-w-md w-full mx-4" :class="[isDarkMode ? 'bg-gray-800' : 'bg-white']">
+          <h3 class="text-xl font-bold mb-4" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">需要帮助？</h3>
+          <p class="mb-4" :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']">如果您遇到任何问题或需要协助，请联系我们的客户支持团队。我们将很乐意为您提供帮助。</p>
+          <p class="mb-4" :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']">客服热线：400-123-4567</p>
+          <p class="mb-4" :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']">电子邮箱：support@example.com</p>
           <button @click="showHelp = false" class="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600 transition duration-300">关闭</button>
         </div>
       </div>
@@ -132,12 +123,12 @@
     <!-- 记录详情弹窗 -->
     <transition name="fade">
       <div v-if="selectedRecord" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-gray-800 p-6 rounded-lg max-w-md w-full mx-4">
-          <h3 class="text-xl font-bold text-white mb-4">文件详情</h3>
-          <p class="text-gray-300 mb-2"><span class="font-medium">文件名：</span>{{ selectedRecord.filename }}</p>
-          <p class="text-gray-300 mb-2"><span class="font-medium">取件日期：</span>{{ selectedRecord.date }}</p>
-          <p class="text-gray-300 mb-2"><span class="font-medium">文件大小：</span>{{ selectedRecord.size }}</p>
-          <p class="text-gray-300 mb-4"><span class="font-medium">下载次数：</span>{{ selectedRecord.downloads }}</p>
+        <div class="p-6 rounded-lg max-w-md w-full mx-4" :class="[isDarkMode ? 'bg-gray-800' : 'bg-white']">
+          <h3 class="text-xl font-bold mb-4" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">文件详情</h3>
+          <p class="mb-2" :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']"><span class="font-medium">文件名：</span>{{ selectedRecord.filename }}</p>
+          <p class="mb-2" :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']"><span class="font-medium">取件日期：</span>{{ selectedRecord.date }}</p>
+          <p class="mb-2" :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']"><span class="font-medium">文件大小：</span>{{ selectedRecord.size }}</p>
+          <p class="mb-4" :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']"><span class="font-medium">下载次数：</span>{{ selectedRecord.downloads }}</p>
           <button @click="selectedRecord = null" class="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600 transition duration-300">关闭</button>
         </div>
       </div>
@@ -146,27 +137,20 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, inject } from 'vue'
 import { LockIcon, EyeIcon, EyeOffIcon, ArrowRightIcon, ShieldCheckIcon, ClipboardListIcon, XIcon, TrashIcon } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
+const isDarkMode = inject('isDarkMode')
 
 const password = ref('')
 const showPassword = ref(false)
 const isInputFocused = ref(false)
-const rememberPassword = ref(false)
 const error = ref('')
 const showHelp = ref(false)
 const selectedRecord = ref(null)
 const showDrawer = ref(false)
-
-const blobs = reactive([
-  { color: 'indigo', size: '96', left: 50, top: 50 },
-  { color: 'purple', size: '80', left: 30, top: 30 },
-  { color: 'pink', size: '88', left: 70, top: 70 },
-  { color: 'blue', size: '72', left: 20, top: 80 },
-])
 
 const records = ref([
   { id: 1, filename: '重要文档.pdf', date: '2023-05-15', size: '2.5 MB', downloads: 3 },

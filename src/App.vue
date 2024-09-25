@@ -1,12 +1,25 @@
 <script setup lang="ts">
+import { ref, watchEffect, provide } from 'vue'
 import { RouterView } from 'vue-router'
+import ThemeToggle from './components/ThemeToggle.vue'
+
+const isDarkMode = ref(false)
+
+watchEffect(() => {
+  document.documentElement.classList.toggle('dark', isDarkMode.value)
+})
+
+provide('isDarkMode', isDarkMode)
 </script>
 
 <template>
-  <div  class="app-container bg-gradient-to-br from-gray-900 via-indigo-900 to-black overflow-hidden">
-    <transition name="page" mode="out-in">
-      <RouterView />
-    </transition>
+  <div :class="['app-container', isDarkMode ? 'dark' : 'light']">
+    <ThemeToggle v-model="isDarkMode" />
+    <RouterView v-slot="{ Component }">
+      <transition name="fade" mode="out-in">
+        <component :is="Component" :key="$route.fullPath" />
+      </transition>
+    </RouterView>
   </div>
 </template>
 
@@ -18,44 +31,24 @@ import { RouterView } from 'vue-router'
   width: 100%;
   height: 100%;
   overflow: hidden;
+  transition: background-color 0.5s ease;
 }
 
-.page-enter-active,
-.page-leave-active {
-  transition: all 0.5s ease-out;
+.light {
+  @apply bg-gradient-to-br from-blue-50 via-indigo-50 to-white;
 }
 
-.page-enter-from {
+.dark {
+  @apply bg-gradient-to-br from-gray-900 via-indigo-900 to-black;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
   opacity: 0;
-  transform: translateY(20px);
-}
-
-.page-leave-to {
-  opacity: 0;
-  transform: translateY(-20px);
-}
-
-body {
-  margin: 0;
-  padding: 0;
-  font-family: 'Inter', sans-serif;
-  @apply bg-gray-900 text-white overflow-y-auto;
-}
-
-/* 自定义滚动条样式 */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  @apply bg-gray-800;
-}
-
-::-webkit-scrollbar-thumb {
-  @apply bg-indigo-600 rounded-full;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  @apply bg-indigo-500;
 }
 </style>
