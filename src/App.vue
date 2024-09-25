@@ -1,15 +1,45 @@
 <script setup lang="ts">
-import { ref, watchEffect, provide } from 'vue'
+import { ref, watchEffect, provide, onMounted } from 'vue'
 import { RouterView } from 'vue-router'
 import ThemeToggle from './components/ThemeToggle.vue'
 
 const isDarkMode = ref(false)
+
+// 检查系统颜色模式
+const checkSystemColorScheme = () => {
+  return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+}
+
+// 从本地存储获取用户之前的选择
+const getUserPreference = () => {
+  const storedPreference = localStorage.getItem('colorMode')
+  if (storedPreference) {
+    return storedPreference === 'dark'
+  }
+  return null
+}
+
+// 设置颜色模式
+const setColorMode = (isDark: boolean) => {
+  isDarkMode.value = isDark
+  localStorage.setItem('colorMode', isDark ? 'dark' : 'light')
+}
+
+onMounted(() => {
+  const userPreference = getUserPreference()
+  if (userPreference !== null) {
+    setColorMode(userPreference)
+  } else {
+    setColorMode(checkSystemColorScheme())
+  }
+})
 
 watchEffect(() => {
   document.documentElement.classList.toggle('dark', isDarkMode.value)
 })
 
 provide('isDarkMode', isDarkMode)
+provide('setColorMode', setColorMode)
 </script>
 
 <template>

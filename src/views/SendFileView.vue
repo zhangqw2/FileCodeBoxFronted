@@ -48,7 +48,7 @@
           <!-- 文件上传区域 -->
           <div
             v-if="sendType === 'file'"
-            class="rounded-xl p-6 flex flex-col items-center justify-center border-2 border-dashed transition-all duration-300 group cursor-pointer"
+            class="rounded-xl p-6 flex flex-col items-center justify-center border-2 border-dashed transition-all duration-300 group cursor-pointer relative"
             :class="[
               isDarkMode
                 ? 'bg-gray-800 bg-opacity-50 border-gray-600 hover:border-indigo-500'
@@ -65,6 +65,9 @@
               @change="handleFileUpload"
               ref="fileInput"
             />
+            <div class="absolute inset-0 w-full h-full" v-if="uploadProgress > 0">
+              <BorderProgressBar :progress="uploadProgress" />
+            </div>
             <UploadCloudIcon
               :class="[
                 'w-16 h-16 transition-colors duration-300',
@@ -172,32 +175,59 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, inject } from 'vue'
+import { ref, inject } from 'vue'
 import { UploadCloudIcon, SendIcon } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
+import BorderProgressBar from '../components/BorderProgressBar.vue'
 
 const router = useRouter()
-// 修改这里：使用 inject 来获取 isDarkMode
 const isDarkMode = inject('isDarkMode')
 
 const sendType = ref('file')
-const selectedFile:any = ref(null)
+const selectedFile = ref<File | null>(null)
 const textContent = ref('')
-const fileInput:any = ref(null)
+const fileInput = ref<HTMLInputElement | null>(null)
 const expirationMethod = ref('time')
 const expirationTime = ref('')
 const expirationViews = ref('')
+const uploadProgress = ref(0)
+
 const triggerFileUpload = () => {
-  fileInput.value.click()
+  fileInput.value?.click()
 }
 
-const handleFileUpload = (event:any) => {
-  selectedFile.value = event.target.files[0]
+const handleFileUpload = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  if (target.files && target.files.length > 0) {
+    selectedFile.value = target.files[0]
+    simulateFileUpload()
+  }
 }
 
-const handleFileDrop = (event:any) => {
-  selectedFile.value = event.dataTransfer.files[0]
+const handleFileDrop = (event: DragEvent) => {
+  if (event.dataTransfer?.files && event.dataTransfer.files.length > 0) {
+    selectedFile.value = event.dataTransfer.files[0]
+    simulateFileUpload()
+  }
 }
+
+const simulateFileUpload = () => {
+  uploadProgress.value = 0
+  const duration = 2000; // 总动画时长(毫秒)
+  const steps = 100; // 动画步数
+  const stepDuration = duration / steps;
+  const stepIncrement = 100 / steps;
+
+  const animate = (step: number) => {
+    if (step <= steps) {
+      uploadProgress.value = step * stepIncrement;
+      setTimeout(() => animate(step + 1), stepDuration);
+    }
+  };
+
+  animate(0);
+}
+
 const handleSubmit = () => {
   if (sendType.value === 'file' && !selectedFile.value) {
     alert('请选择要上传的文件')
