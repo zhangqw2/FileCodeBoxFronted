@@ -1,182 +1,283 @@
 <template>
   <div class="min-h-screen flex items-center justify-center p-4 overflow-hidden transition-colors duration-300">
     <div
-      class="rounded-3xl shadow-2xl overflow-hidden border p-8 w-full max-w-md transition-colors duration-300"
+      class="rounded-3xl shadow-2xl overflow-hidden border w-full max-w-md transition-colors duration-300"
       :class="[
         isDarkMode 
           ? 'bg-white bg-opacity-10 backdrop-filter backdrop-blur-xl border-gray-700' 
           : 'bg-white border-gray-200'
       ]"
     >
-      <h2
-        class="text-3xl font-extrabold text-center mb-8 cursor-pointer transition-colors duration-300"
-        :class="[
-          isDarkMode
-            ? 'text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300'
-            : 'text-indigo-600'
-        ]"
-        @click="toRetrieve" 
-      >
-        FileCodeBox
-      </h2>
-      <form @submit.prevent="handleSubmit" class="space-y-8">
-        <!-- 发送类型选择 -->
-        <div class="flex justify-center space-x-4 mb-6">
-          <button
-            type="button"
-            @click="sendType = 'file'"
-            :class="[
-              'px-4 py-2 rounded-lg',
-              sendType === 'file' ? 'bg-indigo-600 text-white' : 'bg-gray-700 text-gray-300'
-            ]"
-          >
-            发送文件
-          </button>
-          <button
-            type="button"
-            @click="sendType = 'text'"
-            :class="[
-              'px-4 py-2 rounded-lg',
-              sendType === 'text' ? 'bg-indigo-600 text-white' : 'bg-gray-700 text-gray-300'
-            ]"
-          >
-            发送文本
-          </button>
-        </div>
-
-        <transition name="fade" mode="out-in">
-          <div v-if="sendType === 'file'" key="file" class="grid grid-cols-1 gap-8">
-            <!-- 文件上传区域 -->
-            <div
-              class="rounded-xl p-8 flex flex-col items-center justify-center border-2 border-dashed transition-all duration-300 group cursor-pointer relative"
-              :class="[
-                isDarkMode
-                  ? 'bg-gray-800 bg-opacity-50 border-gray-600 hover:border-indigo-500'
-                  : 'bg-gray-100 border-gray-300 hover:border-indigo-500'
-              ]"
-              @click="triggerFileUpload"
-              @dragover.prevent
-              @drop.prevent="handleFileDrop"
-            >
-              <input
-                id="file-upload"
-                type="file"
-                class="hidden"
-                @change="handleFileUpload"
-                ref="fileInput"
-              />
-              <div class="absolute inset-0 w-full h-full" v-if="uploadProgress > 0">
-                <BorderProgressBar :progress="uploadProgress" />
-              </div>
-              <UploadCloudIcon
-                :class="[
-                  'w-16 h-16 transition-colors duration-300',
-                  isDarkMode
-                    ? 'text-gray-400 group-hover:text-indigo-400'
-                    : 'text-gray-600 group-hover:text-indigo-600'
-                ]"
-              />
-              <p
-                :class="[
-                  'mt-4 text-sm transition-colors duration-300',
-                  isDarkMode
-                    ? 'text-gray-400 group-hover:text-indigo-400'
-                    : 'text-gray-600 group-hover:text-indigo-600'
-                ]"
-              >
-                {{ selectedFile ? selectedFile.name : '点击或拖放文件到此处上传' }}
-              </p>
-              <p :class="['mt-2 text-xs', isDarkMode ? 'text-gray-500' : 'text-gray-400']">
-                支持各种常见格式，最大20MB
-              </p>
-            </div>
-          </div>
-          <div v-else key="text" class="grid grid-cols-1 gap-8">
-              <!-- 文本输入区域 -->
-              <div v-if="sendType === 'text'" class="flex flex-col">
-                <textarea
-                  id="text-content"
-                  v-model="textContent"
-                  rows="7"
-                  :class="[
-                    'flex-grow px-4 py-3 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 resize-none',
-                    isDarkMode
-                      ? 'bg-gray-800 bg-opacity-50 text-white'
-                      : 'bg-white text-gray-900 border border-gray-300'
-                  ]"
-                  placeholder="在此输入要发送的文本..."
-                ></textarea>
-              </div>
-            </div>
-        </transition>
-        <!-- 过期方式选择 -->
-        <div class="flex flex-col space-y-4">
-          <label :class="['text-sm font-medium', isDarkMode ? 'text-gray-300' : 'text-gray-700']">过期方式</label>
-          <select
-            v-model="expirationMethod"
-            :class="[
-              'px-4 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500',
-              isDarkMode
-                ? 'bg-gray-800 bg-opacity-50 text-white'
-                : 'bg-white text-gray-900 border border-gray-300'
-            ]"
-          >
-            <option value="time">按时间</option>
-            <option value="views">按查看次数</option>
-          </select>
-          <input
-            v-if="expirationMethod === 'time'"
-            v-model="expirationTime"
-            type="number"
-            placeholder="过期时间（小时）"
-            :class="[
-              'px-4 py-2 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500',
-              isDarkMode
-                ? 'bg-gray-800 bg-opacity-50 text-white'
-                : 'bg-white text-gray-900 border border-gray-300'
-            ]"
-          />
-          <input
-            v-if="expirationMethod === 'views'"
-            v-model="expirationViews"
-            type="number"
-            placeholder="查看次数"
-            :class="[
-              'px-4 py-2 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500',
-              isDarkMode
-                ? 'bg-gray-800 bg-opacity-50 text-white'
-                : 'bg-white text-gray-900 border border-gray-300'
-            ]"
-          />
-        </div>
-        <!-- 提交按钮 -->
-        <button
-          type="submit"
-          class="w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-bold py-4 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50 transition-all duration-300 transform hover:scale-105 hover:shadow-lg relative overflow-hidden group"
+      <div class="p-8">
+        <h2
+          class="text-3xl font-extrabold text-center mb-8 cursor-pointer transition-colors duration-300"
+          :class="[
+            isDarkMode
+              ? 'text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300'
+              : 'text-indigo-600'
+          ]"
+          @click="toRetrieve" 
         >
-          <span
-            class="absolute top-0 left-0 w-full h-full bg-white opacity-0 group-hover:opacity-20 transition-opacity duration-300"
-          ></span>
-          <span class="relative z-10 flex items-center justify-center text-lg">
-            <SendIcon class="w-6 h-6 mr-2" />
-            <span>安全寄送</span>
-          </span>
-        </button>
-      </form>
-      <div class="mt-6 text-center">
+          FileCodeBox
+        </h2>
+        <form @submit.prevent="handleSubmit" class="space-y-8">
+          <!-- 发送类型选择 -->
+          <div class="flex justify-center space-x-4 mb-6">
+            <button
+              type="button"
+              @click="sendType = 'file'"
+              :class="[
+                'px-4 py-2 rounded-lg',
+                sendType === 'file' ? 'bg-indigo-600 text-white' : 'bg-gray-700 text-gray-300'
+              ]"
+            >
+              发送文件
+            </button>
+            <button
+              type="button"
+              @click="sendType = 'text'"
+              :class="[
+                'px-4 py-2 rounded-lg',
+                sendType === 'text' ? 'bg-indigo-600 text-white' : 'bg-gray-700 text-gray-300'
+              ]"
+            >
+              发送文本
+            </button>
+          </div>
+
+          <transition name="fade" mode="out-in">
+            <div v-if="sendType === 'file'" key="file" class="grid grid-cols-1 gap-8">
+              <!-- 文件上传区域 -->
+              <div
+                class="rounded-xl p-8 flex flex-col items-center justify-center border-2 border-dashed transition-all duration-300 group cursor-pointer relative"
+                :class="[
+                  isDarkMode
+                    ? 'bg-gray-800 bg-opacity-50 border-gray-600 hover:border-indigo-500'
+                    : 'bg-gray-100 border-gray-300 hover:border-indigo-500'
+                ]"
+                @click="triggerFileUpload"
+                @dragover.prevent
+                @drop.prevent="handleFileDrop"
+              >
+                <input
+                  id="file-upload"
+                  type="file"
+                  class="hidden"
+                  @change="handleFileUpload"
+                  ref="fileInput"
+                />
+                <div class="absolute inset-0 w-full h-full" v-if="uploadProgress > 0">
+                  <BorderProgressBar :progress="uploadProgress" />
+                </div>
+                <UploadCloudIcon
+                  :class="[
+                    'w-16 h-16 transition-colors duration-300',
+                    isDarkMode
+                      ? 'text-gray-400 group-hover:text-indigo-400'
+                      : 'text-gray-600 group-hover:text-indigo-600'
+                  ]"
+                />
+                <p
+                  :class="[
+                    'mt-4 text-sm transition-colors duration-300',
+                    isDarkMode
+                      ? 'text-gray-400 group-hover:text-indigo-400'
+                      : 'text-gray-600 group-hover:text-indigo-600'
+                  ]"
+                >
+                  {{ selectedFile ? selectedFile.name : '点击或拖放文件到此处上传' }}
+                </p>
+                <p :class="['mt-2 text-xs', isDarkMode ? 'text-gray-500' : 'text-gray-400']">
+                  支持各种常见格式，最大20MB
+                </p>
+              </div>
+            </div>
+            <div v-else key="text" class="grid grid-cols-1 gap-8">
+                <!-- 文本输入区域 -->
+                <div v-if="sendType === 'text'" class="flex flex-col">
+                  <textarea
+                    id="text-content"
+                    v-model="textContent"
+                    rows="7"
+                    :class="[
+                      'flex-grow px-4 py-3 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 resize-none',
+                      isDarkMode
+                        ? 'bg-gray-800 bg-opacity-50 text-white'
+                        : 'bg-white text-gray-900 border border-gray-300'
+                    ]"
+                    placeholder="在此输入要发送的文本..."
+                  ></textarea>
+                </div>
+              </div>
+          </transition>
+          <!-- 过期方式选择 -->
+          <div class="flex flex-col space-y-4">
+            <label :class="['text-sm font-medium', isDarkMode ? 'text-gray-300' : 'text-gray-700']">过期方式</label>
+            <select
+              v-model="expirationMethod"
+              :class="[
+                'px-4 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500',
+                isDarkMode
+                  ? 'bg-gray-800 bg-opacity-50 text-white'
+                  : 'bg-white text-gray-900 border border-gray-300'
+              ]"
+            >
+              <option value="time">按时间</option>
+              <option value="views">按查看次数</option>
+            </select>
+            <input
+              v-if="expirationMethod === 'time'"
+              v-model="expirationTime"
+              type="number"
+              placeholder="过期时间（小时）"
+              :class="[
+                'px-4 py-2 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500',
+                isDarkMode
+                  ? 'bg-gray-800 bg-opacity-50 text-white'
+                  : 'bg-white text-gray-900 border border-gray-300'
+              ]"
+            />
+            <input
+              v-if="expirationMethod === 'views'"
+              v-model="expirationViews"
+              type="number"
+              placeholder="查看次数"
+              :class="[
+                'px-4 py-2 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500',
+                isDarkMode
+                  ? 'bg-gray-800 bg-opacity-50 text-white'
+                  : 'bg-white text-gray-900 border border-gray-300'
+              ]"
+            />
+          </div>
+          <!-- 提交按钮 -->
+          <button
+            type="submit"
+            class="w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-bold py-4 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50 transition-all duration-300 transform hover:scale-105 hover:shadow-lg relative overflow-hidden group"
+          >
+            <span
+              class="absolute top-0 left-0 w-full h-full bg-white opacity-0 group-hover:opacity-20 transition-opacity duration-300"
+            ></span>
+            <span class="relative z-10 flex items-center justify-center text-lg">
+              <SendIcon class="w-6 h-6 mr-2" />
+              <span>安全寄送</span>
+            </span>
+          </button>
+        </form>
+        <div class="mt-6 text-center">
           <router-link to="/" class="text-indigo-400 hover:text-indigo-300 transition duration-300">
             需要取件？点击这里
           </router-link>
         </div>
+      </div>
+      
+      <div class="px-8 py-4 bg-opacity-50 flex justify-between items-center" :class="[isDarkMode ? 'bg-gray-800' : 'bg-gray-100']">
+        <span class="text-sm flex items-center" :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']">
+          <ShieldCheckIcon class="w-4 h-4 mr-1 text-green-400" />
+          安全加密
+        </span>
+        <button @click="toggleDrawer" class="text-sm hover:text-indigo-300 transition duration-300 flex items-center" :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']">
+          发件记录
+          <ClipboardListIcon class="w-4 h-4 ml-1" />
+        </button>
+      </div>
     </div>
+
+    <!-- 抽屉式发件记录 -->
+    <transition name="drawer">
+      <div v-if="showDrawer" class="fixed inset-y-0 right-0 w-full sm:w-96 bg-opacity-70 backdrop-filter backdrop-blur-xl shadow-2xl z-50 overflow-hidden flex flex-col" :class="[isDarkMode ? 'bg-gray-900' : 'bg-white']">
+        <div class="flex justify-between items-center p-6 border-b" :class="[isDarkMode ? 'border-gray-700' : 'border-gray-200']">
+          <h3 class="text-2xl font-bold" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">发件记录</h3>
+          <button @click="toggleDrawer" class="hover:text-white transition duration-300" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-800']">
+            <XIcon class="w-6 h-6" />
+          </button>
+        </div>
+        <div class="flex-grow overflow-y-auto p-6">
+          <transition-group name="list" tag="div" class="space-y-4">
+            <div v-for="record in sendRecords" :key="record.id" class="bg-opacity-50 rounded-lg p-4 flex justify-between items-center shadow-md hover:shadow-lg transition duration-300 transform hover:scale-102" :class="[isDarkMode ? 'bg-gray-800 hover:bg-gray-700' : 'bg-gray-100 hover:bg-white']">
+              <div class="flex items-center space-x-4">
+                <div class="flex-shrink-0">
+                  <FileIcon class="w-10 h-10" :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']" />
+                </div>
+                <div>
+                  <p class="font-medium text-lg" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">{{ record.filename }}</p>
+                  <p class="text-sm" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-600']">{{ record.date }} · {{ record.size }}</p>
+                </div>
+              </div>
+              <div class="flex space-x-2">
+                <button @click="viewDetails(record)" class="p-2 rounded-full hover:bg-opacity-20 transition duration-300" :class="[isDarkMode ? 'hover:bg-indigo-400 text-indigo-400' : 'hover:bg-indigo-100 text-indigo-600']">
+                  <EyeIcon class="w-5 h-5" />
+                </button>
+                <button @click="deleteRecord(record.id)" class="p-2 rounded-full hover:bg-opacity-20 transition duration-300" :class="[isDarkMode ? 'hover:bg-red-400 text-red-400' : 'hover:bg-red-100 text-red-600']">
+                  <TrashIcon class="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+          </transition-group>
+        </div>
+      </div>
+    </transition>
+
+    <!-- 记录详情弹窗 -->
+    <transition name="fade">
+      <div v-if="selectedRecord" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="p-8 rounded-2xl max-w-md w-full mx-4 shadow-2xl transform transition-all duration-300 ease-out backdrop-filter backdrop-blur-lg bg-opacity-70" :class="[isDarkMode ? 'bg-gray-800' : 'bg-white']">
+          <h3 class="text-2xl font-bold mb-6" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">文件详情</h3>
+          <div class="space-y-4">
+            <div class="flex items-center">
+              <FileIcon class="w-6 h-6 mr-3" :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']" />
+              <p :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']"><span class="font-medium">文件名：</span>{{ selectedRecord.filename }}</p>
+            </div>
+            <div class="flex items-center">
+              <CalendarIcon class="w-6 h-6 mr-3" :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']" />
+              <p :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']"><span class="font-medium">发送日期：</span>{{ selectedRecord.date }}</p>
+            </div>
+            <div class="flex items-center">
+              <HardDriveIcon class="w-6 h-6 mr-3" :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']" />
+              <p :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']"><span class="font-medium">文件大小：</span>{{ selectedRecord.size }}</p>
+            </div>
+            <div class="flex items-center">
+              <ClockIcon class="w-6 h-6 mr-3" :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']" />
+              <p :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']"><span class="font-medium">过期时间：</span>{{ selectedRecord.expiration }}</p>
+            </div>
+          </div>
+          
+          <!-- 取件码和二维码部分 -->
+          <div class="mt-6 flex justify-between items-center">
+            <div class="flex flex-col items-center w-1/2 pr-2">
+              <h4 class="text-lg font-semibold mb-3" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">取件码</h4>
+              <div 
+                class="bg-gray-100 p-3 rounded-lg shadow-md cursor-pointer hover:bg-gray-200 transition-colors duration-300 w-full text-center"
+                @click="copyRetrieveCode(selectedRecord.retrieveCode)"
+              >
+                <p class="text-2xl font-bold text-indigo-600">{{ selectedRecord.retrieveCode }}</p>
+              </div>
+              <p class="mt-2 text-sm" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-600']">点击复制取件码</p>
+            </div>
+            <div class="flex flex-col items-center w-1/2 pl-2">
+              <h4 class="text-lg font-semibold mb-3" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">二维码</h4>
+              <div class="bg-white p-2 rounded-lg shadow-md">
+                <QRCode :value="getQRCodeValue(selectedRecord)" :size="128" level="M" />
+              </div>
+              <p class="mt-2 text-sm" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-600']">扫描二维码快速取件</p>
+            </div>
+          </div>
+          
+          <button @click="selectedRecord = null" class="mt-8 w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-6 py-3 rounded-lg font-medium hover:from-indigo-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50 transition duration-300 transform hover:scale-105">
+            关闭
+          </button>
+        </div>
+      </div>
+    </transition>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, inject, onMounted } from 'vue'
-import { UploadCloudIcon, SendIcon } from 'lucide-vue-next'
+import { UploadCloudIcon, SendIcon, ClipboardListIcon, XIcon, TrashIcon, FileIcon, CalendarIcon, HardDriveIcon, ClockIcon, EyeIcon, ShieldCheckIcon } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import BorderProgressBar from '../components/BorderProgressBar.vue'
+import QRCode from 'qrcode.vue'
 
 const router = useRouter()
 const isDarkMode = inject('isDarkMode')
@@ -189,6 +290,16 @@ const expirationMethod = ref('time')
 const expirationTime = ref('')
 const expirationViews = ref('')
 const uploadProgress = ref(0)
+const showDrawer = ref(false)
+const selectedRecord = ref<any>(null)
+
+const sendRecords = ref([
+  { id: 1, filename: '项目报告.pdf', date: '2023-05-15', size: '3.2 MB', expiration: '2023-05-22', retrieveCode: 'ABC123' },
+  { id: 2, filename: '会议纪要.docx', date: '2023-05-10', size: '1.5 MB', expiration: '2023-05-17', retrieveCode: 'DEF456' },
+  { id: 3, filename: '财务数据.xlsx', date: '2023-05-05', size: '2.8 MB', expiration: '2023-05-12', retrieveCode: 'GHI789' },
+  { id: 4, filename: '产品设计.psd', date: '2023-05-01', size: '15.7 MB', expiration: '2023-05-08', retrieveCode: 'JKL012' },
+  { id: 5, filename: '客户反馈.txt', date: '2023-04-28', size: '0.5 MB', expiration: '2023-05-05', retrieveCode: 'MNO345' },
+])
 
 const triggerFileUpload = () => {
   fileInput.value?.click()
@@ -244,17 +355,68 @@ const handleSubmit = () => {
     return
   }
 
-  // 这里处理文件/文本上传和过期设置的逻辑
+  // 处理文件/文本上传和过期设置的逻辑
   console.log('Send Type:', sendType.value)
   console.log('Selected File:', selectedFile.value)
   console.log('Text Content:', textContent.value)
   console.log('Expiration Method:', expirationMethod.value)
   console.log('Expiration Time:', expirationTime.value)
   console.log('Expiration Views:', expirationViews.value)
+
+  // 添加新的发送记录
+  const newRecord = {
+    id: sendRecords.value.length + 1,
+    filename: selectedFile.value ? selectedFile.value.name : '文本内容.txt',
+    date: new Date().toISOString().split('T')[0],
+    size: selectedFile.value ? `${(selectedFile.value.size / (1024 * 1024)).toFixed(1)} MB` : '0.1 MB',
+    expiration: expirationMethod.value === 'time' 
+      ? new Date(Date.now() + parseInt(expirationTime.value) * 60 * 60 * 1000).toISOString().split('T')[0]
+      : `${expirationViews.value}次查看后过期`,
+    retrieveCode: Math.random().toString(36).substring(2, 8).toUpperCase()
+  }
+  sendRecords.value.unshift(newRecord)
+
+  // 显示发送成功消息
+  alert('文件发送成功！取件码：' + newRecord.retrieveCode)
+
+  // 重置表单
+  selectedFile.value = null
+  textContent.value = ''
+  expirationTime.value = ''
+  expirationViews.value = ''
+  uploadProgress.value = 0
 }
 
 const toRetrieve = () => {
   router.push('/')
+}
+
+const toggleDrawer = () => {
+  showDrawer.value = !showDrawer.value
+}
+
+const viewDetails = (record:any) => {
+  selectedRecord.value = record
+}
+
+const deleteRecord = (id:any) => {
+  sendRecords.value = sendRecords.value.filter(record => record.id !== id)
+}
+
+const getQRCodeValue = (record:any) => {
+  // 这里返回你想要在二维码中编码的信息
+  // 例如,可以是一个包含文件ID和取件码的URL
+  return `https://your-domain.com/retrieve/${record.id}?code=${record.retrieveCode}`
+}
+
+const copyRetrieveCode = async (code:any) => {
+  try {
+    await navigator.clipboard.writeText(code)
+    alert('取件码已复制到剪贴板')
+  } catch (err) {
+    console.error('无法复制取件码: ', err)
+    alert('复制失败,请手动复制取件码')
+  }
 }
 
 // 使用 onMounted 钩子延迟加载一些非关键资源或初始化
@@ -280,5 +442,24 @@ onMounted(() => {
 .fade-leave-from {
   opacity: 1;
   transform: translateY(0);
+}
+
+.drawer-enter-active,
+.drawer-leave-active {
+  transition: transform 0.3s ease;
+}
+.drawer-enter-from,
+.drawer-leave-to {
+  transform: translateX(100%);
+}
+
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.5s ease;
+}
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
 }
 </style>

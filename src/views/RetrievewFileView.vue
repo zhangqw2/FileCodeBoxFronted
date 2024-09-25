@@ -79,7 +79,7 @@
 
     <!-- 抽屉式取件记录 -->
     <transition name="drawer">
-      <div v-if="showDrawer" class="fixed inset-y-0 right-0 w-full sm:w-96 bg-opacity-95 backdrop-filter backdrop-blur-lg shadow-2xl z-50 overflow-hidden flex flex-col" :class="[isDarkMode ? 'bg-gray-900' : 'bg-white']">
+      <div v-if="showDrawer" class="fixed inset-y-0 right-0 w-full sm:w-96 bg-opacity-70 backdrop-filter backdrop-blur-xl shadow-2xl z-50 overflow-hidden flex flex-col" :class="[isDarkMode ? 'bg-gray-900' : 'bg-white']">
         <div class="flex justify-between items-center p-6 border-b" :class="[isDarkMode ? 'border-gray-700' : 'border-gray-200']">
           <h3 class="text-2xl font-bold" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">取件记录</h3>
           <button @click="toggleDrawer" class="hover:text-white transition duration-300" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-800']">
@@ -88,16 +88,21 @@
         </div>
         <div class="flex-grow overflow-y-auto p-6">
           <transition-group name="list" tag="div" class="space-y-4">
-            <div v-for="record in records" :key="record.id" class="bg-opacity-50 rounded-lg p-4 flex justify-between items-center" :class="[isDarkMode ? 'bg-gray-800' : 'bg-gray-100']">
-              <div>
-                <p class="font-medium" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">{{ record.filename }}</p>
-                <p class="text-sm" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-600']">{{ record.date }}</p>
+            <div v-for="record in records" :key="record.id" class="bg-opacity-50 rounded-lg p-4 flex justify-between items-center shadow-md hover:shadow-lg transition duration-300 transform hover:scale-102" :class="[isDarkMode ? 'bg-gray-800 hover:bg-gray-700' : 'bg-gray-100 hover:bg-white']">
+              <div class="flex items-center space-x-4">
+                <div class="flex-shrink-0">
+                  <FileIcon class="w-10 h-10" :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']" />
+                </div>
+                <div>
+                  <p class="font-medium text-lg" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">{{ record.filename }}</p>
+                  <p class="text-sm" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-600']">{{ record.date }} · {{ record.size }}</p>
+                </div>
               </div>
               <div class="flex space-x-2">
-                <button @click="viewDetails(record)" class="hover:text-indigo-300 transition duration-300" :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']">
+                <button @click="viewDetails(record)" class="p-2 rounded-full hover:bg-opacity-20 transition duration-300" :class="[isDarkMode ? 'hover:bg-indigo-400 text-indigo-400' : 'hover:bg-indigo-100 text-indigo-600']">
                   <EyeIcon class="w-5 h-5" />
                 </button>
-                <button @click="deleteRecord(record.id)" class="hover:text-red-300 transition duration-300" :class="[isDarkMode ? 'text-red-400' : 'text-red-600']">
+                <button @click="deleteRecord(record.id)" class="p-2 rounded-full hover:bg-opacity-20 transition duration-300" :class="[isDarkMode ? 'hover:bg-red-400 text-red-400' : 'hover:bg-red-100 text-red-600']">
                   <TrashIcon class="w-5 h-5" />
                 </button>
               </div>
@@ -110,13 +115,38 @@
     <!-- 记录详情弹窗 -->
     <transition name="fade">
       <div v-if="selectedRecord" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="p-6 rounded-lg max-w-md w-full mx-4" :class="[isDarkMode ? 'bg-gray-800' : 'bg-white']">
-          <h3 class="text-xl font-bold mb-4" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">文件详情</h3>
-          <p class="mb-2" :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']"><span class="font-medium">文件名：</span>{{ selectedRecord.filename }}</p>
-          <p class="mb-2" :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']"><span class="font-medium">取件日期：</span>{{ selectedRecord.date }}</p>
-          <p class="mb-2" :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']"><span class="font-medium">文件大小：</span>{{ selectedRecord.size }}</p>
-          <p class="mb-4" :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']"><span class="font-medium">下载次数：</span>{{ selectedRecord.downloads }}</p>
-          <button @click="selectedRecord = null" class="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600 transition duration-300">关闭</button>
+        <div class="p-8 rounded-2xl max-w-md w-full mx-4 shadow-2xl transform transition-all duration-300 ease-out backdrop-filter backdrop-blur-lg bg-opacity-70" :class="[isDarkMode ? 'bg-gray-800' : 'bg-white']">          <h3 class="text-2xl font-bold mb-6" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">文件详情</h3>
+          <div class="space-y-4">
+            <div class="flex items-center">
+              <FileIcon class="w-6 h-6 mr-3" :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']" />
+              <p :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']"><span class="font-medium">文件名：</span>{{ selectedRecord.filename }}</p>
+            </div>
+            <div class="flex items-center">
+              <CalendarIcon class="w-6 h-6 mr-3" :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']" />
+              <p :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']"><span class="font-medium">取件日期：</span>{{ selectedRecord.date }}</p>
+            </div>
+            <div class="flex items-center">
+              <HardDriveIcon class="w-6 h-6 mr-3" :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']" />
+              <p :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']"><span class="font-medium">文件大小：</span>{{ selectedRecord.size }}</p>
+            </div>
+            <div class="flex items-center">
+              <DownloadIcon class="w-6 h-6 mr-3" :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']" />
+              <p :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']"><span class="font-medium">下载次数：</span>{{ selectedRecord.downloads }}</p>
+            </div>
+          </div>
+          
+          <!-- 取件二维码部分 -->
+          <div class="mt-6 flex flex-col items-center">
+            <h4 class="text-lg font-semibold mb-3" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">取件二维码</h4>
+            <div class="bg-white p-2 rounded-lg shadow-md">
+              <QRCode :value="getQRCodeValue(selectedRecord)" :size="128" level="M" />
+            </div>
+            <p class="mt-2 text-sm" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-600']">扫描二维码快速取件</p>
+          </div>
+          
+          <button @click="selectedRecord = null" class="mt-8 w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-6 py-3 rounded-lg font-medium hover:from-indigo-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50 transition duration-300 transform hover:scale-105">
+            关闭
+          </button>
         </div>
       </div>
     </transition>
@@ -125,8 +155,9 @@
 
 <script setup>
 import { ref, inject } from 'vue'
-import { BoxIcon, EyeIcon, EyeOffIcon, ArrowRightIcon, ShieldCheckIcon, ClipboardListIcon, XIcon, TrashIcon } from 'lucide-vue-next'
+import { BoxIcon, EyeIcon, EyeOffIcon, ArrowRightIcon, ShieldCheckIcon, ClipboardListIcon, XIcon, TrashIcon, FileIcon, CalendarIcon, HardDriveIcon, DownloadIcon } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
+import QRCode from 'qrcode.vue'  // 导入 QRCode 组件
 
 const router = useRouter()
 const isDarkMode = inject('isDarkMode')
@@ -137,13 +168,13 @@ const isInputFocused = ref(false)
 const error = ref('')
 const selectedRecord = ref(null)
 const showDrawer = ref(false)
-
+  
 const records = ref([
-  { id: 1, filename: '重要文档.pdf', date: '2023-05-15', size: '2.5 MB', downloads: 3 },
-  { id: 2, filename: '会议记录.docx', date: '2023-05-10', size: '1.2 MB', downloads: 2 },
-  { id: 3, filename: '财务报表.xlsx', date: '2023-05-05', size: '3.7 MB', downloads: 5 },
-  { id: 4, filename: '项目计划.pptx', date: '2023-05-01', size: '5.1 MB', downloads: 1 },
-  { id: 5, filename: '客户名单.csv', date: '2023-04-28', size: '0.8 MB', downloads: 4 },
+  { id: 1, filename: '重要文档.pdf', date: '2023-05-15', size: '2.5 MB', downloads: 3, qrCode: 'path/to/qr-code-1.png' },
+  { id: 2, filename: '会议记录.docx', date: '2023-05-10', size: '1.2 MB', downloads: 2, qrCode: 'path/to/qr-code-2.png' },
+  { id: 3, filename: '财务报表.xlsx', date: '2023-05-05', size: '3.7 MB', downloads: 5, qrCode: 'path/to/qr-code-3.png' },
+  { id: 4, filename: '项目计划.pptx', date: '2023-05-01', size: '5.1 MB', downloads: 1, qrCode: 'path/to/qr-code-4.png' },
+  { id: 5, filename: '客户名单.csv', date: '2023-04-28', size: '0.8 MB', downloads: 4, qrCode: 'path/to/qr-code-5.png' },
 ])
 
 const togglePasswordVisibility = () => {
@@ -164,7 +195,8 @@ const handleSubmit = () => {
     filename: `新文件${records.value.length + 1}.pdf`,
     date: new Date().toISOString().split('T')[0],
     size: `${Math.random().toFixed(1)} MB`,
-    downloads: 0
+    downloads: 0,
+    qrCode: `path/to/qr-code-${records.value.length + 1}.png`
   }
   records.value.unshift(newRecord)
   showDrawer.value = true
@@ -189,6 +221,12 @@ const toggleDrawer = () => {
 
 const toSend = () => {
   router.push('/send')
+}
+
+const getQRCodeValue = (record) => {
+  // 这里返回你想要在二维码中编码的信息
+  // 例如,可以是一个包含文件ID的URL
+  return `https://your-domain.com/retrieve/${record.id}`
 }
 </script>
 
