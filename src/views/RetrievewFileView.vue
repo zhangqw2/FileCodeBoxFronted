@@ -61,7 +61,6 @@
                   v-if="inputStatus.loading"
                   class="absolute inset-y-0 right-0 flex items-center pr-3"
                 >
-                  <!-- 这里可以添加一个加载动画 -->
                   <span
                     class="animate-spin rounded-full h-5 w-5 border-b-2 border-indigo-500"
                   ></span>
@@ -89,7 +88,6 @@
             </button>
           </form>
 
-          <!-- 添加一个新的按钮用于导航到发送文件页面 -->
           <div class="mt-6 text-center">
             <router-link
               to="/send"
@@ -122,7 +120,6 @@
       </div>
     </div>
 
-    <!-- 抽屉式取件记录 -->
     <transition name="drawer">
       <div
         v-if="showDrawer"
@@ -184,6 +181,17 @@
                   <EyeIcon class="w-5 h-5" />
                 </button>
                 <button
+                  @click="downloadRecord(record)"
+                  class="p-2 rounded-full hover:bg-opacity-20 transition duration-300"
+                  :class="[
+                    isDarkMode
+                      ? 'hover:bg-green-400 text-green-400'
+                      : 'hover:bg-green-100 text-green-600'
+                  ]"
+                >
+                  <DownloadIcon class="w-5 h-5" />
+                </button>
+                <button
                   @click="deleteRecord(record.id)"
                   class="p-2 rounded-full hover:bg-opacity-20 transition duration-300"
                   :class="[
@@ -199,7 +207,6 @@
       </div>
     </transition>
 
-    <!-- 记录详情弹窗 -->
     <transition name="fade">
       <div
         v-if="selectedRecord"
@@ -249,12 +256,29 @@
                 :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']"
               />
               <p :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']">
-                <span class="font-medium">下载次数：</span>{{ selectedRecord.downloads }}
+                <span class="font-medium">内容：</span>
               </p>
+              <div v-if="selectedRecord.content" class="ml-2">
+                <button
+                  @click="showContentPreview"
+                  class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition duration-300"
+                >
+                  预览内容
+                </button>
+              </div>
+              <div v-else>
+                <a
+                  :href="`${baseUrl}${selectedRecord.downloadUrl}`"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition duration-300"
+                >
+                  点击下载
+                </a>
+              </div>
             </div>
           </div>
 
-          <!-- 取件二维码部分 -->
           <div class="mt-6 flex flex-col items-center">
             <h4
               class="text-lg font-semibold mb-3"
@@ -280,7 +304,33 @@
       </div>
     </transition>
 
-    <!-- 使用新的 AlertComponent -->
+    <!-- 新增内容预览弹框 -->
+    <transition name="fade">
+      <div
+        v-if="showPreview"
+        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      >
+        <div
+          class="p-8 rounded-2xl max-w-3xl w-full mx-4 shadow-2xl transform transition-all duration-300 ease-out backdrop-filter backdrop-blur-lg bg-opacity-70 max-h-[80vh] overflow-y-auto"
+          :class="[isDarkMode ? 'bg-gray-800' : 'bg-white']"
+        >
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-2xl font-bold" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">
+              内容预览
+            </h3>
+            <button @click="showPreview = false" class="text-gray-500 hover:text-gray-700">
+              <XIcon class="w-6 h-6" />
+            </button>
+          </div>
+          <div
+            class="prose max-w-none"
+            :class="[isDarkMode ? 'prose-invert' : '']"
+            v-html="renderedContent"
+          ></div>
+        </div>
+      </div>
+    </transition>
+
     <AlertComponent
       :show="showAlert"
       :message="alertMessage"
@@ -291,7 +341,7 @@
 </template>
 
 <script setup>
-import { ref, inject, onMounted, watch } from 'vue'
+import { ref, inject, onMounted, watch, computed } from 'vue'
 import {
   BoxIcon,
   EyeIcon,
@@ -310,7 +360,14 @@ import QRCode from 'qrcode.vue'
 import { useFileDataStore } from '@/stores/fileData'
 import AlertComponent from '@/components/AlertComponent.vue'
 import { storeToRefs } from 'pinia'
-import api from '@/utils/api' // 假设您有一个请求工具函数
+import api from '@/utils/api'
+import { saveAs } from 'file-saver'
+import { marked } from 'marked'
+
+const baseUrl =
+  import.meta.env.MODE === 'production'
+    ? import.meta.env.VITE_API_BASE_URL_PROD
+    : import.meta.env.VITE_API_BASE_URL_DEV
 
 const router = useRouter()
 const isDarkMode = inject('isDarkMode')
@@ -349,7 +406,6 @@ onMounted(() => {
     code.value = query_code
   }
 })
-
 watch(code, (newVal) => {
   if (newVal.length === 5) {
     handleSubmit()
@@ -362,8 +418,6 @@ const handleSubmit = async () => {
     return
   }
 
-  // Clear previous error messages
-  showAlert.value = false
   inputStatus.value.readonly = true
   inputStatus.value.loading = true
 
@@ -373,22 +427,34 @@ const handleSubmit = async () => {
     })
     if (res.code === 200) {
       if (res.detail) {
+        const isFile = res.detail.text.startsWith('/share/download')
+        const newFileData = {
+          id: Date.now(),
+          code: res.detail.code,
+          filename: res.detail.name,
+          size: formatFileSize(res.detail.size),
+          downloadUrl: isFile ? res.detail.text : null,
+          content: isFile ? null : res.detail.text,
+          date: new Date().toLocaleString()
+        }
+
         let flag = true
         fileStore.receiveData.forEach((file) => {
-          if (file.code === res.detail.code) {
+          if (file.code === newFileData.code) {
             flag = false
             return
           }
         })
         if (flag) {
-          fileStore.addReceiveData(res.detail)
+          fileStore.addReceiveData(newFileData)
         }
         showDrawer.value = true
+        showAlertMessage('文件获取成功', 'success')
       } else {
         showAlertMessage('无效的取件码', 'error')
       }
     } else {
-      showAlertMessage(res.detail, 'error')
+      showAlertMessage(res.message || '获取文件失败', 'error')
     }
   } catch (err) {
     console.error('取件失败:', err)
@@ -398,6 +464,14 @@ const handleSubmit = async () => {
     inputStatus.value.loading = false
     code.value = ''
   }
+}
+
+const formatFileSize = (bytes) => {
+  if (bytes === 0) return '0 Bytes'
+  const k = 1024
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
 }
 
 const viewDetails = (record) => {
@@ -420,7 +494,30 @@ const toSend = () => {
 }
 
 const getQRCodeValue = (record) => {
-  return `https://your-domain.com/retrieve/${record.id}`
+  return `${baseUrl}${record.downloadUrl}`
+}
+
+const downloadRecord = (record) => {
+  if (record.downloadUrl) {
+    // 如果是文件,直接下载
+    window.open(`${baseUrl}${record.downloadUrl}`, '_blank')
+  } else if (record.content) {
+    // 如果是文本,转成txt下载
+    const blob = new Blob([record.content], { type: 'text/plain;charset=utf-8' })
+    saveAs(blob, `${record.filename}.txt`)
+  }
+}
+
+const showPreview = ref(false)
+const renderedContent = computed(() => {
+  if (selectedRecord.value && selectedRecord.value.content) {
+    return marked(selectedRecord.value.content)
+  }
+  return ''
+})
+
+const showContentPreview = () => {
+  showPreview.value = true
 }
 </script>
 
@@ -496,5 +593,22 @@ const getQRCodeValue = (record) => {
 }
 .w-97-100 {
   width: 97%;
+}
+
+/* 添加 Markdown 样式 */
+:deep(.prose) {
+  @apply text-left;
+}
+:deep(.prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6) {
+  @apply text-indigo-600 dark:text-indigo-400;
+}
+:deep(.prose a) {
+  @apply text-blue-600 dark:text-blue-400;
+}
+:deep(.prose code) {
+  @apply bg-gray-100 dark:bg-gray-700 rounded px-1;
+}
+:deep(.prose pre) {
+  @apply bg-gray-100 dark:bg-gray-700 rounded p-4 overflow-x-auto;
 }
 </style>
