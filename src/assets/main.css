@@ -1,3 +1,12 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+@font-face {
+  font-family: 'DingTalk';
+  src: url('../assets/font/DingTalk.ttf') format('truetype');
+}
+
+* {
+  font-family: 'DingTalk', sans-serif !important;
+}
