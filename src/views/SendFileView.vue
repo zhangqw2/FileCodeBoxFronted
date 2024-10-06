@@ -195,7 +195,7 @@
     <transition name="drawer">
       <div
         v-if="showDrawer"
-        class="fixed inset-y-0 right-0 w-full sm:w-96 bg-opacity-70 backdrop-filter backdrop-blur-xl shadow-2xl z-50 overflow-hidden flex flex-col"
+        class="fixed inset-y-0 right-0 w-full sm:w-120 bg-opacity-70 backdrop-filter backdrop-blur-xl shadow-2xl z-50 overflow-hidden flex flex-col"
         :class="[isDarkMode ? 'bg-gray-900' : 'bg-white']"
       >
         <div
@@ -692,6 +692,12 @@ onMounted(() => {
 .fade-leave-to {
   opacity: 0;
   transform: translateY(10px);
+}
+
+@media (min-width: 640px) {
+  .sm\:w-120 {
+    width: 30rem; /* 480px */
+  }
 }
 
 .fade-enter-to,

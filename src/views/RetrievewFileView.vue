@@ -123,7 +123,7 @@
     <transition name="drawer">
       <div
         v-if="showDrawer"
-        class="fixed inset-y-0 right-0 w-full sm:w-96 bg-opacity-70 backdrop-filter backdrop-blur-xl shadow-2xl z-50 overflow-hidden flex flex-col"
+        class="fixed inset-y-0 right-0 w-full sm:w-120 bg-opacity-70 backdrop-filter backdrop-blur-xl shadow-2xl z-50 overflow-hidden flex flex-col"
         :class="[isDarkMode ? 'bg-gray-900' : 'bg-white']"
       >
         <div
@@ -256,7 +256,7 @@
                 :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']"
               />
               <p :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']">
-                <span class="font-medium">内容：</span>
+                <span class="font-medium">文件内容：</span>
               </p>
               <div v-if="selectedRecord.content" class="ml-2">
                 <button
@@ -537,7 +537,11 @@ const showContentPreview = () => {
     transform: translate(50px, 50px) scale(1.05);
   }
 }
-
+@media (min-width: 640px) {
+  .sm\:w-120 {
+    width: 30rem; /* 480px */
+  }
+}
 .animate-blob-1 {
   animation: blob 25s infinite;
 }
@@ -610,5 +614,12 @@ const showContentPreview = () => {
 }
 :deep(.prose pre) {
   @apply bg-gray-100 dark:bg-gray-700 rounded p-4 overflow-x-auto;
+}
+
+/* 添加新的宽度类 */
+@media (min-width: 640px) {
+  .sm\:w-120 {
+    width: 30rem; /* 480px */
+  }
 }
 </style>
