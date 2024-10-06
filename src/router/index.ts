@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { defineAsyncComponent } from 'vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -12,7 +11,8 @@ const router = createRouter({
     {
       path: '/send',
       name: 'Send',
-      component: defineAsyncComponent(() => import('@/views/SendFileView.vue'))
+      // 直接使用动态导入，不再包裹在 defineAsyncComponent 中
+      component: () => import('@/views/SendFileView.vue')
     }
   ]
 })

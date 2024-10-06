@@ -114,9 +114,9 @@
           </transition>
           <!-- 过期方式选择 -->
           <div class="flex flex-col space-y-4">
-            <label :class="['text-sm font-medium', isDarkMode ? 'text-gray-300' : 'text-gray-700']"
-              >过期方式</label
-            >
+            <label :class="['text-sm font-medium', isDarkMode ? 'text-gray-300' : 'text-gray-700']">
+              过期方式
+            </label>
             <select
               v-model="expirationMethod"
               :class="[
@@ -126,33 +126,27 @@
                   : 'bg-white text-gray-900 border border-gray-300'
               ]"
             >
-              <option value="time">按时间</option>
-              <option value="views">按查看次数</option>
+              <option value="day">按天数</option>
+              <option value="hour">按小时</option>
+              <option value="minute">按分钟</option>
+              <option value="count">按查看次数</option>
             </select>
-            <input
-              v-if="expirationMethod === 'time'"
-              v-model="expirationTime"
-              type="number"
-              placeholder="过期时间（小时）"
-              :class="[
-                'px-4 py-2 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500',
-                isDarkMode
-                  ? 'bg-gray-800 bg-opacity-50 text-white'
-                  : 'bg-white text-gray-900 border border-gray-300'
-              ]"
-            />
-            <input
-              v-if="expirationMethod === 'views'"
-              v-model="expirationViews"
-              type="number"
-              placeholder="查看次数"
-              :class="[
-                'px-4 py-2 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500',
-                isDarkMode
-                  ? 'bg-gray-800 bg-opacity-50 text-white'
-                  : 'bg-white text-gray-900 border border-gray-300'
-              ]"
-            />
+            <div class="flex items-center space-x-2">
+              <input
+                v-model="expirationValue"
+                type="number"
+                :placeholder="getPlaceholder()"
+                :class="[
+                  'flex-grow px-4 py-2 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500',
+                  isDarkMode
+                    ? 'bg-gray-800 bg-opacity-50 text-white'
+                    : 'bg-white text-gray-900 border border-gray-300'
+                ]"
+              />
+              <span :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']">
+                {{ getUnit() }}
+              </span>
+            </div>
           </div>
           <!-- 提交按钮 -->
           <button
@@ -403,6 +397,7 @@ import BorderProgressBar from '../components/BorderProgressBar.vue'
 import QRCode from 'qrcode.vue'
 import AlertComponent from '../components/AlertComponent.vue'
 import api from '../utils/api'
+
 const router = useRouter()
 const isDarkMode = inject('isDarkMode')
 
@@ -410,29 +405,12 @@ const sendType = ref('file')
 const selectedFile = ref<File | null>(null)
 const textContent = ref('')
 const fileInput = ref<HTMLInputElement | null>(null)
-const expirationMethod = ref('time')
-const expirationTime = ref('')
-const expirationViews = ref('')
+const expirationMethod = ref('day')
+const expirationValue = ref('')
 const uploadProgress = ref(0)
 const showDrawer = ref(false)
 const selectedRecord = ref<any>(null)
-api
-  .post('/', {
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    data: {
-      sendType: sendType.value,
-      selectedFile: selectedFile.value,
-      textContent: textContent.value,
-      expirationMethod: expirationMethod.value,
-      expirationTime: expirationTime.value,
-      expirationViews: expirationViews.value
-    }
-  })
-  .then((res) => {
-    console.log(res)
-  })
+
 const sendRecords = ref([
   {
     id: 1,
@@ -529,6 +507,36 @@ const simulateFileUpload = () => {
   animate(0)
 }
 
+const getPlaceholder = () => {
+  switch (expirationMethod.value) {
+    case 'day':
+      return '输入天数'
+    case 'hour':
+      return '输入小时数'
+    case 'minute':
+      return '输入分钟数'
+    case 'count':
+      return '输入查看次数'
+    default:
+      return '输入值'
+  }
+}
+
+const getUnit = () => {
+  switch (expirationMethod.value) {
+    case 'day':
+      return '天'
+    case 'hour':
+      return '小时'
+    case 'minute':
+      return '分钟'
+    case 'count':
+      return '次'
+    default:
+      return ''
+  }
+}
+
 const handleSubmit = () => {
   if (sendType.value === 'file' && !selectedFile.value) {
     showAlertMessage('请选择要上传的文件', 'error')
@@ -538,12 +546,8 @@ const handleSubmit = () => {
     showAlertMessage('请输入要发送的文本', 'error')
     return
   }
-  if (expirationMethod.value === 'time' && !expirationTime.value) {
-    showAlertMessage('请输入过期时间', 'error')
-    return
-  }
-  if (expirationMethod.value === 'views' && !expirationViews.value) {
-    showAlertMessage('请输入查看次数', 'error')
+  if (!expirationValue.value) {
+    showAlertMessage('请输入过期值', 'error')
     return
   }
 
@@ -552,8 +556,24 @@ const handleSubmit = () => {
   console.log('Selected File:', selectedFile.value)
   console.log('Text Content:', textContent.value)
   console.log('Expiration Method:', expirationMethod.value)
-  console.log('Expiration Time:', expirationTime.value)
-  console.log('Expiration Views:', expirationViews.value)
+  console.log('Expiration Value:', expirationValue.value)
+
+  // 计算过期时间
+  let expirationDate = new Date()
+  switch (expirationMethod.value) {
+    case 'day':
+      expirationDate.setDate(expirationDate.getDate() + parseInt(expirationValue.value))
+      break
+    case 'hour':
+      expirationDate.setHours(expirationDate.getHours() + parseInt(expirationValue.value))
+      break
+    case 'minute':
+      expirationDate.setMinutes(expirationDate.getMinutes() + parseInt(expirationValue.value))
+      break
+    case 'count':
+      // 对于查看次数,我们不设置具体的过期日期
+      break
+  }
 
   // 添加新的发送记录
   const newRecord = {
@@ -564,11 +584,9 @@ const handleSubmit = () => {
       ? `${(selectedFile.value.size / (1024 * 1024)).toFixed(1)} MB`
       : '0.1 MB',
     expiration:
-      expirationMethod.value === 'time'
-        ? new Date(Date.now() + parseInt(expirationTime.value) * 60 * 60 * 1000)
-            .toISOString()
-            .split('T')[0]
-        : `${expirationViews.value}次查看后过期`,
+      expirationMethod.value === 'count'
+        ? `${expirationValue.value}次查看后过期`
+        : expirationDate.toISOString().split('T')[0],
     retrieveCode: Math.random().toString(36).substring(2, 8).toUpperCase()
   }
   sendRecords.value.unshift(newRecord)
@@ -579,8 +597,7 @@ const handleSubmit = () => {
   // 重置表单
   selectedFile.value = null
   textContent.value = ''
-  expirationTime.value = ''
-  expirationViews.value = ''
+  expirationValue.value = ''
   uploadProgress.value = 0
 }
 
