@@ -378,7 +378,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, inject, onMounted } from 'vue'
+import { ref, inject, onMounted, computed } from 'vue'
 import {
   UploadCloudIcon,
   SendIcon,
@@ -396,10 +396,12 @@ import { useRouter } from 'vue-router'
 import BorderProgressBar from '../components/BorderProgressBar.vue'
 import QRCode from 'qrcode.vue'
 import AlertComponent from '../components/AlertComponent.vue'
-import api from '../utils/api'
+import SparkMD5 from 'spark-md5'
+import { useFileDataStore } from '../stores/fileData'
 
 const router = useRouter()
 const isDarkMode = inject('isDarkMode')
+const fileDataStore = useFileDataStore()
 
 const sendType = ref('file')
 const selectedFile = ref<File | null>(null)
@@ -411,48 +413,7 @@ const uploadProgress = ref(0)
 const showDrawer = ref(false)
 const selectedRecord = ref<any>(null)
 
-const sendRecords = ref([
-  {
-    id: 1,
-    filename: '项目报告.pdf',
-    date: '2023-05-15',
-    size: '3.2 MB',
-    expiration: '2023-05-22',
-    retrieveCode: 'ABC123'
-  },
-  {
-    id: 2,
-    filename: '会议纪要.docx',
-    date: '2023-05-10',
-    size: '1.5 MB',
-    expiration: '2023-05-17',
-    retrieveCode: 'DEF456'
-  },
-  {
-    id: 3,
-    filename: '财务数据.xlsx',
-    date: '2023-05-05',
-    size: '2.8 MB',
-    expiration: '2023-05-12',
-    retrieveCode: 'GHI789'
-  },
-  {
-    id: 4,
-    filename: '产品设计.psd',
-    date: '2023-05-01',
-    size: '15.7 MB',
-    expiration: '2023-05-08',
-    retrieveCode: 'JKL012'
-  },
-  {
-    id: 5,
-    filename: '客户反馈.txt',
-    date: '2023-04-28',
-    size: '0.5 MB',
-    expiration: '2023-05-05',
-    retrieveCode: 'MNO345'
-  }
-])
+const sendRecords = computed(() => fileDataStore.shareData)
 
 const showAlert = ref(false)
 const alertMessage = ref('')
@@ -470,41 +431,118 @@ const showAlertMessage = (
 const closeAlert = () => {
   showAlert.value = false
 }
+// 新增状态
+const fileHash = ref('')
+const uploadedChunks = ref<Set<number>>(new Set())
 
 const triggerFileUpload = () => {
   fileInput.value?.click()
 }
 
-const handleFileUpload = (event: Event) => {
+const handleFileUpload = async (event: Event) => {
   const target = event.target as HTMLInputElement
   if (target.files && target.files.length > 0) {
     selectedFile.value = target.files[0]
-    simulateFileUpload()
+    fileHash.value = await calculateFileHash(selectedFile.value)
+    startChunkUpload()
   }
 }
 
-const handleFileDrop = (event: DragEvent) => {
+const handleFileDrop = async (event: DragEvent) => {
   if (event.dataTransfer?.files && event.dataTransfer.files.length > 0) {
     selectedFile.value = event.dataTransfer.files[0]
-    simulateFileUpload()
+    fileHash.value = await calculateFileHash(selectedFile.value)
+    startChunkUpload()
   }
 }
 
-const simulateFileUpload = () => {
-  uploadProgress.value = 0
-  const duration = 2000 // 总动画时长(毫秒)
-  const steps = 100 // 动画步数
-  const stepDuration = duration / steps
-  const stepIncrement = 100 / steps
+const calculateFileHash = async (file: File): Promise<string> => {
+  return new Promise((resolve) => {
+    const chunkSize = 2097152 // 2MB
+    const spark = new SparkMD5.ArrayBuffer()
+    const fileReader = new FileReader()
 
-  const animate = (step: number) => {
-    if (step <= steps) {
-      uploadProgress.value = step * stepIncrement
-      setTimeout(() => animate(step + 1), stepDuration)
+    let currentChunk = 0
+    const chunks = Math.ceil(file.size / chunkSize)
+
+    fileReader.onload = (e) => {
+      spark.append(e.target!.result as ArrayBuffer)
+      currentChunk++
+
+      if (currentChunk < chunks) {
+        loadNext()
+      } else {
+        resolve(spark.end())
+      }
     }
+
+    const loadNext = () => {
+      const start = currentChunk * chunkSize
+      const end = start + chunkSize >= file.size ? file.size : start + chunkSize
+      fileReader.readAsArrayBuffer(file.slice(start, end))
+    }
+
+    loadNext()
+  })
+}
+
+const startChunkUpload = async () => {
+  if (!selectedFile.value) return
+
+  const chunkSize = 1024 * 1024 // 1MB 每片
+  const totalChunks = Math.ceil(selectedFile.value.size / chunkSize)
+
+  // 检查已上传的切片
+  const { uploadedList } = await checkUploadedChunks(fileHash.value)
+  uploadedChunks.value = new Set(uploadedList)
+
+  for (let i = 0; i < totalChunks; i++) {
+    if (uploadedChunks.value.has(i)) {
+      console.log(`切片 ${i} 已上传,跳过`)
+      continue
+    }
+
+    const start = i * chunkSize
+    const end = Math.min(start + chunkSize, selectedFile.value.size)
+    const chunk = selectedFile.value.slice(start, end)
+
+    // 上传每个切片
+    await uploadChunk(chunk, i, totalChunks)
+
+    // 更新进度
+    uploadProgress.value = ((uploadedChunks.value.size + 1) / totalChunks) * 100
   }
 
-  animate(0)
+  // 所有切片上传完成,通知服务器合并文件
+  await mergeChunks(fileHash.value, totalChunks)
+
+  showAlertMessage('文件上传完成', 'success')
+}
+
+const checkUploadedChunks = async (fileHash: string) => {
+  // 这里应该调用后端API来检查已上传的切片
+  // 现在用模拟数据代替
+  return new Promise<{ uploadedList: number[] }>((resolve) => {
+    setTimeout(() => {
+      resolve({ uploadedList: [] })
+    }, 500)
+  })
+}
+
+const uploadChunk = async (chunk: Blob, index: number, total: number) => {
+  // 这里应该是实际的上传逻辑,现在用setTimeout模拟
+  return new Promise<void>((resolve) => {
+    setTimeout(() => {
+      console.log(`上传切片 ${index + 1}/${total}`)
+      uploadedChunks.value.add(index)
+      resolve()
+    }, 500)
+  })
+}
+
+const mergeChunks = async (fileHash: string, totalChunks: number) => {
+  // 这里应该调用后端API来合并文件切片
+  console.log(`请求合并文件切片, fileHash: ${fileHash}, totalChunks: ${totalChunks}`)
 }
 
 const getPlaceholder = () => {
@@ -577,7 +615,7 @@ const handleSubmit = () => {
 
   // 添加新的发送记录
   const newRecord = {
-    id: sendRecords.value.length + 1,
+    id: Date.now(),
     filename: selectedFile.value ? selectedFile.value.name : '文本内容.txt',
     date: new Date().toISOString().split('T')[0],
     size: selectedFile.value
@@ -589,11 +627,10 @@ const handleSubmit = () => {
         : expirationDate.toISOString().split('T')[0],
     retrieveCode: Math.random().toString(36).substring(2, 8).toUpperCase()
   }
-  sendRecords.value.unshift(newRecord)
+  fileDataStore.addShareData(newRecord)
 
   // 显示发送成功消息
   showAlertMessage(`文件发送成功！取件码：${newRecord.retrieveCode}`, 'success')
-
   // 重置表单
   selectedFile.value = null
   textContent.value = ''
@@ -613,8 +650,11 @@ const viewDetails = (record: any) => {
   selectedRecord.value = record
 }
 
-const deleteRecord = (id: any) => {
-  sendRecords.value = sendRecords.value.filter((record) => record.id !== id)
+const deleteRecord = (id: number) => {
+  const index = fileDataStore.shareData.findIndex((record: any) => record.id === id)
+  if (index !== -1) {
+    fileDataStore.deleteShareData(index)
+  }
 }
 
 const getQRCodeValue = (record: any) => {

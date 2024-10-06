@@ -6,6 +6,7 @@ specifiers:
   '@rushstack/eslint-patch': ^1.10.4
   '@tsconfig/node20': ^20.1.4
   '@types/node': ^20.16.7
+  '@types/spark-md5': ^3.0.4
   '@vitejs/plugin-vue': ^5.1.4
   '@vitejs/plugin-vue-jsx': ^4.0.1
   '@vue/eslint-config-prettier': ^9.0.0
@@ -24,6 +25,7 @@ specifiers:
   prettier: ^3.3.3
   qrcode.vue: ^3.4.1
   rimraf: ^6.0.1
+  spark-md5: ^3.0.2
   tailwindcss: ^3.4.13
   typescript: ~5.4.5
   vite: ^5.4.7
@@ -38,6 +40,7 @@ dependencies:
   lucide-vue-next: 0.445.0_vue@3.5.8
   pinia: 2.2.2_typescript@5.4.5+vue@3.5.8
   qrcode.vue: 3.4.1_vue@3.5.8
+  spark-md5: 3.0.2
   vue: 3.5.8_typescript@5.4.5
   vue-router: 4.4.5_vue@3.5.8
 
@@ -47,6 +50,7 @@ devDependencies:
   '@rushstack/eslint-patch': 1.10.4
   '@tsconfig/node20': 20.1.4
   '@types/node': 20.16.7
+  '@types/spark-md5': 3.0.4
   '@vitejs/plugin-vue': 5.1.4_vite@5.4.7+vue@3.5.8
   '@vitejs/plugin-vue-jsx': 4.0.1_vite@5.4.7+vue@3.5.8
   '@vue/eslint-config-prettier': 9.0.0_edq2hqhb5ywdex3d2mazvmybbq
@@ -928,6 +932,10 @@ packages:
     resolution: {integrity: sha512-QkDQjAY3gkvJNcZOWwzy3BN34RweT0OQ9zJyvLCU0kSK22dO2QYh/NHGfbEAYylPYzRB1/iXcojS79wOg5gFSw==}
     dependencies:
       undici-types: 6.19.8
+    dev: true
+
+  /@types/spark-md5/3.0.4:
+    resolution: {integrity: sha512-qtOaDz+IXiNndPgYb6t1YoutnGvFRtWSNzpVjkAPCfB2UzTyybuD4Tjgs7VgRawum3JnJNRwNQd4N//SvrHg1Q==}
     dev: true
 
   /@typescript-eslint/eslint-plugin/7.18.0_rwblscj2v5mttegw6cqzsnmxke:
@@ -2958,6 +2966,10 @@ packages:
   /source-map-js/1.2.1:
     resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
     engines: {node: '>=0.10.0'}
+
+  /spark-md5/3.0.2:
+    resolution: {integrity: sha512-wcFzz9cDfbuqe0FZzfi2or1sgyIrsDwmPwfZC4hiNidPdPINjeUwNfv5kldczoEAcjl9Y1L3SM7Uz2PUEQzxQw==}
+    dev: false
 
   /speakingurl/14.0.1:
     resolution: {integrity: sha512-1POYv7uv2gXoyGFpBCmpDVSNV74IfsWlDW216UPjbWufNf+bSU6GdbDsxdcxtfwb4xlI3yxzOTKClUosxARYrQ==}

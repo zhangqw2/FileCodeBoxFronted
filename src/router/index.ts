@@ -11,7 +11,6 @@ const router = createRouter({
     {
       path: '/send',
       name: 'Send',
-      // 直接使用动态导入，不再包裹在 defineAsyncComponent 中
       component: () => import('@/views/SendFileView.vue')
     }
   ]

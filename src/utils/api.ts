@@ -5,12 +5,13 @@ const baseURL =
   import.meta.env.MODE === 'production'
     ? import.meta.env.VITE_API_BASE_URL_PROD
     : import.meta.env.VITE_API_BASE_URL_DEV
-console.log(baseURL)
-console.log(import.meta.env.MODE)
+
+// 确保 baseURL 是一个有效的字符串
+const sanitizedBaseURL = typeof baseURL === 'string' ? baseURL : ''
 
 // 创建 axios 实例
 const api = axios.create({
-  baseURL,
+  baseURL: sanitizedBaseURL,
   timeout: 10000, // 请求超时时间
   headers: {
     'Content-Type': 'application/json'
@@ -25,6 +26,12 @@ api.interceptors.request.use(
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`
     }
+
+    // 确保 URL 是有效的
+    if (config.url && !config.url.startsWith('http')) {
+      config.url = `${sanitizedBaseURL}/${config.url.replace(/^\//, '')}`
+    }
+
     return config
   },
   (error) => {
@@ -43,7 +50,7 @@ api.interceptors.response.use(
       switch (error.response.status) {
         case 401:
           // 未授权,可能需要重新登录
-          console.error('未授权,请重新登录')
+          console.error('未授权，请重新登录')
           break
         case 403:
           // 禁止访问
@@ -56,8 +63,10 @@ api.interceptors.response.use(
         default:
           console.error('发生错误:', error.response.data)
       }
+    } else if (error.request) {
+      console.error('未收到响应:', error.request)
     } else {
-      console.error('发生错误:', error.message)
+      console.error('请求配置错误:', error.message)
     }
     return Promise.reject(error)
   }
