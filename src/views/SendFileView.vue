@@ -95,7 +95,7 @@
               </div>
             </div>
             <div v-else key="text" class="grid grid-cols-1 gap-8">
-              <!-- 文本输入区域 -->
+              <!-- 文本��入区域 -->
               <div v-if="sendType === 'text'" class="flex flex-col">
                 <textarea
                   id="text-content"
@@ -130,8 +130,9 @@
               <option value="hour">按小时</option>
               <option value="minute">按分钟</option>
               <option value="count">按查看次数</option>
+              <option value="forever">永久</option>
             </select>
-            <div class="flex items-center space-x-2">
+            <div v-if="expirationMethod !== 'forever'" class="flex items-center space-x-2">
               <input
                 v-model="expirationValue"
                 type="number"
@@ -242,12 +243,23 @@
               </div>
               <div class="flex space-x-2">
                 <button
+                  @click="copyRetrieveLink(record.retrieveCode)"
+                  class="p-2 rounded-full hover:bg-opacity-20 transition duration-300"
+                  :class="[
+                    isDarkMode
+                      ? 'hover:bg-blue-400 text-blue-400'
+                      : 'hover:bg-blue-100 text-blue-600'
+                  ]"
+                >
+                  <ClipboardCopyIcon class="w-5 h-5" />
+                </button>
+                <button
                   @click="viewDetails(record)"
                   class="p-2 rounded-full hover:bg-opacity-20 transition duration-300"
                   :class="[
                     isDarkMode
-                      ? 'hover:bg-indigo-400 text-indigo-400'
-                      : 'hover:bg-indigo-100 text-indigo-600'
+                      ? 'hover:bg-green-400 text-green-400'
+                      : 'hover:bg-green-100 text-green-600'
                   ]"
                 >
                   <EyeIcon class="w-5 h-5" />
@@ -282,7 +294,7 @@
             class="text-2xl font-bold mb-6"
             :class="[isDarkMode ? 'text-white' : 'text-gray-800']"
           >
-            文件详情
+            文件详
           </h3>
           <div class="space-y-4">
             <div class="flex items-center">
@@ -367,13 +379,6 @@
         </div>
       </div>
     </transition>
-    <!-- 使用新的 AlertComponent -->
-    <AlertComponent
-      :show="showAlert"
-      :message="alertMessage"
-      :type="alertType"
-      @close="closeAlert"
-    />
   </div>
 </template>
 
@@ -390,14 +395,15 @@ import {
   HardDriveIcon,
   ClockIcon,
   EyeIcon,
-  ShieldCheckIcon
+  ShieldCheckIcon,
+  ClipboardCopyIcon
 } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import BorderProgressBar from '../components/BorderProgressBar.vue'
 import QRCode from 'qrcode.vue'
-import AlertComponent from '../components/AlertComponent.vue'
 import SparkMD5 from 'spark-md5'
 import { useFileDataStore } from '../stores/fileData'
+import api from '@/utils/api'
 
 const router = useRouter()
 const isDarkMode = inject('isDarkMode')
@@ -412,25 +418,11 @@ const expirationValue = ref('')
 const uploadProgress = ref(0)
 const showDrawer = ref(false)
 const selectedRecord = ref<any>(null)
+import { useAlertStore } from '@/stores/alertStore'
 
+const alertStore = useAlertStore()
 const sendRecords = computed(() => fileDataStore.shareData)
 
-const showAlert = ref(false)
-const alertMessage = ref('')
-const alertType = ref('success')
-
-const showAlertMessage = (
-  message: string,
-  type: 'success' | 'error' | 'warning' | 'info' = 'success'
-) => {
-  alertMessage.value = message
-  alertType.value = type
-  showAlert.value = true
-}
-
-const closeAlert = () => {
-  showAlert.value = false
-}
 // 新增状态
 const fileHash = ref('')
 const uploadedChunks = ref<Set<number>>(new Set())
@@ -516,10 +508,12 @@ const startChunkUpload = async () => {
   // 所有切片上传完成,通知服务器合并文件
   await mergeChunks(fileHash.value, totalChunks)
 
-  showAlertMessage('文件上传完成', 'success')
+  alertStore.showAlert('文件上传完成', 'success')
 }
 
 const checkUploadedChunks = async (fileHash: string) => {
+  console.log(fileHash)
+
   // 这里应该调用后端API来检查已上传的切片
   // 现在用模拟数据代替
   return new Promise<{ uploadedList: number[] }>((resolve) => {
@@ -555,6 +549,8 @@ const getPlaceholder = () => {
       return '输入分钟数'
     case 'count':
       return '输入查看次数'
+    case 'forever':
+      return '永久'
     default:
       return '输入值'
   }
@@ -570,72 +566,83 @@ const getUnit = () => {
       return '分钟'
     case 'count':
       return '次'
+    case 'forever':
+      return '永久'
     default:
       return ''
   }
 }
 
-const handleSubmit = () => {
+const handleSubmit = async () => {
   if (sendType.value === 'file' && !selectedFile.value) {
-    showAlertMessage('请选择要上传的文件', 'error')
+    alertStore.showAlert('请选择要上传的件', 'error')
     return
   }
   if (sendType.value === 'text' && !textContent.value.trim()) {
-    showAlertMessage('请输入要发送的文本', 'error')
+    alertStore.showAlert('请输入要发送的文本', 'error')
     return
   }
-  if (!expirationValue.value) {
-    showAlertMessage('请输入过期值', 'error')
+  if (expirationMethod.value !== 'forever' && !expirationValue.value) {
+    alertStore.showAlert('请输入过期值', 'error')
     return
   }
 
-  // 处理文件/文本上传和过期设置的逻辑
-  console.log('Send Type:', sendType.value)
-  console.log('Selected File:', selectedFile.value)
-  console.log('Text Content:', textContent.value)
-  console.log('Expiration Method:', expirationMethod.value)
-  console.log('Expiration Value:', expirationValue.value)
+  try {
+    let response: any
+    if (sendType.value === 'text') {
+      // 使用 FormData 发送文本
+      const formData = new FormData()
+      formData.append('text', textContent.value)
+      if (expirationMethod.value !== 'forever') {
+        formData.append('expire_value', expirationValue.value)
+      }
+      formData.append('expire_style', expirationMethod.value)
+      response = await api.post('/share/text/', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      })
+    } else {
+      // 处理文件上传的逻辑
+      // ... 文件上传的代码 ...
+    }
 
-  // 计算过期时间
-  let expirationDate = new Date()
-  switch (expirationMethod.value) {
-    case 'day':
-      expirationDate.setDate(expirationDate.getDate() + parseInt(expirationValue.value))
-      break
-    case 'hour':
-      expirationDate.setHours(expirationDate.getHours() + parseInt(expirationValue.value))
-      break
-    case 'minute':
-      expirationDate.setMinutes(expirationDate.getMinutes() + parseInt(expirationValue.value))
-      break
-    case 'count':
-      // 对于查看次数,我们不设置具体的过期日期
-      break
+    if (response && response.code === 200) {
+      const retrieveCode = response.detail.code
+      // 添加新的发送记录
+      const newRecord = {
+        id: Date.now(),
+        filename: sendType.value === 'text' ? '文本内容.txt' : selectedFile.value!.name,
+        date: new Date().toISOString().split('T')[0],
+        size:
+          sendType.value === 'text'
+            ? '0.1 MB'
+            : `${(selectedFile.value!.size / (1024 * 1024)).toFixed(1)} MB`,
+        expiration: `${expirationValue.value}${getUnit()}后过期`,
+        retrieveCode: retrieveCode
+      }
+      fileDataStore.addShareData(newRecord)
+
+      // 显示发送成功消息
+      alertStore.showAlert(`文件发送成功！取件码：${retrieveCode}`, 'success')
+      // 重置表单
+      selectedFile.value = null
+      textContent.value = ''
+      expirationValue.value = ''
+      uploadProgress.value = 0
+
+      // 自动打开抽屉
+      showDrawer.value = true
+
+      // 自动复制取件码链接
+      await copyRetrieveLink(retrieveCode)
+    } else {
+      throw new Error('服务器响应异常')
+    }
+  } catch (error) {
+    console.error('发送失败:', error)
+    alertStore.showAlert('发送失败,请稍后重试', 'error')
   }
-
-  // 添加新的发送记录
-  const newRecord = {
-    id: Date.now(),
-    filename: selectedFile.value ? selectedFile.value.name : '文本内容.txt',
-    date: new Date().toISOString().split('T')[0],
-    size: selectedFile.value
-      ? `${(selectedFile.value.size / (1024 * 1024)).toFixed(1)} MB`
-      : '0.1 MB',
-    expiration:
-      expirationMethod.value === 'count'
-        ? `${expirationValue.value}次查看后过期`
-        : expirationDate.toISOString().split('T')[0],
-    retrieveCode: Math.random().toString(36).substring(2, 8).toUpperCase()
-  }
-  fileDataStore.addShareData(newRecord)
-
-  // 显示发送成功消息
-  showAlertMessage(`文件发送成功！取件码：${newRecord.retrieveCode}`, 'success')
-  // 重置表单
-  selectedFile.value = null
-  textContent.value = ''
-  expirationValue.value = ''
-  uploadProgress.value = 0
 }
 
 const toRetrieve = () => {
@@ -656,20 +663,34 @@ const deleteRecord = (id: number) => {
     fileDataStore.deleteShareData(index)
   }
 }
-
+const baseUrl =
+  import.meta.env.MODE === 'production'
+    ? import.meta.env.VITE_API_BASE_URL_PROD
+    : import.meta.env.VITE_API_BASE_URL_DEV
 const getQRCodeValue = (record: any) => {
   // 这里返回你想要在二维码中编码的信息
   // 例如,可以是一个包含文件ID和取件码的URL
-  return `https://your-domain.com/retrieve/${record.id}?code=${record.retrieveCode}`
+  return `${baseUrl}/?code=${record.retrieveCode}`
 }
 
 const copyRetrieveCode = async (code: string) => {
   try {
     await navigator.clipboard.writeText(code)
-    showAlertMessage('取件码已复制到剪贴板', 'success')
+    alertStore.showAlert('取件码已复制到剪贴板', 'success')
   } catch (err) {
     console.error('无法复制取件码: ', err)
-    showAlertMessage('复制失败,请手动复制取件码', 'error')
+    alertStore.showAlert('复制失败,请手动复制取件码', 'error')
+  }
+}
+
+const copyRetrieveLink = async (code: string) => {
+  const link = `${baseUrl}/?code=${code}`
+  try {
+    await navigator.clipboard.writeText(link)
+    alertStore.showAlert('取件链接已复制到剪贴板', 'success')
+  } catch (err) {
+    console.error('无法复制取件链接: ', err)
+    alertStore.showAlert('复制失败,请手动复制取件链接', 'error')
   }
 }
 

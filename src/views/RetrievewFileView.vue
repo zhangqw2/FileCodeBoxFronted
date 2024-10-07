@@ -330,13 +330,6 @@
         </div>
       </div>
     </transition>
-
-    <AlertComponent
-      :show="showAlert"
-      :message="alertMessage"
-      :type="alertType"
-      @close="closeAlert"
-    />
   </div>
 </template>
 
@@ -358,12 +351,13 @@ import {
 import { useRouter, useRoute } from 'vue-router'
 import QRCode from 'qrcode.vue'
 import { useFileDataStore } from '@/stores/fileData'
-import AlertComponent from '@/components/AlertComponent.vue'
 import { storeToRefs } from 'pinia'
 import api from '@/utils/api'
 import { saveAs } from 'file-saver'
 import { marked } from 'marked'
+import { useAlertStore } from '@/stores/alertStore'
 
+const alertStore = useAlertStore()
 const baseUrl =
   import.meta.env.MODE === 'production'
     ? import.meta.env.VITE_API_BASE_URL_PROD
@@ -373,19 +367,6 @@ const router = useRouter()
 const isDarkMode = inject('isDarkMode')
 const fileStore = useFileDataStore()
 const { receiveData } = storeToRefs(fileStore)
-const showAlert = ref(false)
-const alertMessage = ref('')
-const alertType = ref('success')
-
-const showAlertMessage = (message, type) => {
-  alertMessage.value = message
-  alertType.value = type
-  showAlert.value = true
-}
-
-const closeAlert = () => {
-  showAlert.value = false
-}
 const code = ref('')
 const inputStatus = ref({
   readonly: false,
@@ -414,7 +395,7 @@ watch(code, (newVal) => {
 
 const handleSubmit = async () => {
   if (code.value.length !== 5) {
-    showAlertMessage('请输入5位取件码', 'error')
+    alertStore.showAlert('请输入5位取件码', 'error')
     return
   }
 
@@ -449,16 +430,16 @@ const handleSubmit = async () => {
           fileStore.addReceiveData(newFileData)
         }
         showDrawer.value = true
-        showAlertMessage('文件获取成功', 'success')
+        alertStore.showAlert('文件获取成功', 'success')
       } else {
-        showAlertMessage('无效的取件码', 'error')
+        alertStore.showAlert('无效的取件码', 'error')
       }
     } else {
-      showAlertMessage(res.message || '获取文件失败', 'error')
+      alertStore.showAlert(res.detail || '获取文件失败', 'error')
     }
   } catch (err) {
     console.error('取件失败:', err)
-    showAlertMessage('取件失败，请稍后重试', 'error')
+    alertStore.showAlert('取件失败，请稍后重试', 'error')
   } finally {
     inputStatus.value.readonly = false
     inputStatus.value.loading = false

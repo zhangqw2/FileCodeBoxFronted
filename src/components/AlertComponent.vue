@@ -1,137 +1,94 @@
 <template>
-  <transition name="alert-fade">
-    <div v-if="show" class="fixed top-4 right-4 max-w-sm w-full z-50">
-      <div
-        :class="[
-          'rounded-lg shadow-lg overflow-hidden transform transition-all duration-300',
-          alertTypeClasses[type]
-        ]"
-      >
-        <div class="p-4">
-          <div class="flex items-start">
-            <div class="flex-shrink-0">
-              <CheckCircle v-if="type === 'success'" class="h-6 w-6 text-white" />
-              <AlertTriangle v-else-if="type === 'error'" class="h-6 w-6 text-white" />
-              <AlertCircle v-else-if="type === 'warning'" class="h-6 w-6 text-white" />
-              <Info v-else class="h-6 w-6 text-white" />
-            </div>
-            <div class="ml-3 w-0 flex-1 pt-0.5">
-              <p class="text-sm font-medium text-white" v-html="message"></p>
-            </div>
-            <div class="ml-4 flex-shrink-0 flex">
-              <button
-                @click="$emit('close')"
-                class="inline-flex text-white hover:text-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white"
-              >
-                <span class="sr-only">关闭</span>
-                <X class="h-5 w-5" />
-              </button>
-            </div>
+  <transition-group
+    name="alert-fade"
+    tag="div"
+    class="fixed top-4 right-4 z-50 w-full sm:max-w-sm md:max-w-md space-y-4 px-4 sm:px-0"
+  >
+    <div
+      v-for="alert in alerts"
+      :key="alert.id"
+      :class="[
+        'w-full rounded-lg shadow-xl overflow-hidden',
+        'bg-gradient-to-r',
+        gradientClasses[alert.type]
+      ]"
+    >
+      <div class="p-4">
+        <div class="flex items-start">
+          <div class="flex-shrink-0">
+            <component :is="alertIcons[alert.type]" class="h-6 w-6 text-white" />
+          </div>
+          <div class="ml-3 flex-1 pt-0.5">
+            <p class="text-sm font-medium text-white">{{ alert.message }}</p>
+          </div>
+          <div class="ml-4 flex-shrink-0 flex">
+            <button
+              @click="removeAlert(alert.id)"
+              class="inline-flex text-white hover:text-gray-200 focus:outline-none transition-colors duration-200"
+            >
+              <span class="sr-only">关闭</span>
+              <X class="h-5 w-5" />
+            </button>
           </div>
         </div>
-        <div class="h-1 bg-white bg-opacity-25">
-          <div
-            :class="[
-              'h-full transition-all duration-300 ease-out bg-white',
-              { 'w-full': !autoClose }
-            ]"
-            :style="{ width: `${progressWidth}%` }"
-          ></div>
-        </div>
+      </div>
+      <div class="h-1 bg-white bg-opacity-25">
+        <div
+          class="h-full bg-white transition-all duration-100 ease-out"
+          :style="{ width: `${alert.progress}%` }"
+        ></div>
       </div>
     </div>
-  </transition>
+  </transition-group>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { storeToRefs } from 'pinia'
+import { useAlertStore } from '@/stores/alertStore'
 import { CheckCircle, AlertTriangle, AlertCircle, Info, X } from 'lucide-vue-next'
+import { onMounted, onUnmounted } from 'vue'
 
-const props = defineProps({
-  show: Boolean,
-  message: String,
-  type: {
-    type: String,
-    default: 'info',
-    validator: (value: string) => ['success', 'error', 'warning', 'info'].includes(value)
-  },
-  duration: {
-    type: Number,
-    default: 3000
-  },
-  autoClose: {
-    type: Boolean,
-    default: true
-  }
-})
+const alertStore = useAlertStore()
+const { alerts } = storeToRefs(alertStore)
+const { removeAlert, updateAlertProgress } = alertStore
 
-const emit = defineEmits(['close'])
-
-const alertTypeClasses: { [key: string]: string } = {
-  success: 'bg-green-500',
-  error: 'bg-red-500',
-  warning: 'bg-yellow-500',
-  info: 'bg-blue-500'
+const gradientClasses = {
+  success: 'from-green-500 to-green-600',
+  error: 'from-red-500 to-red-600',
+  warning: 'from-yellow-500 to-yellow-600',
+  info: 'from-blue-500 to-blue-600'
 }
 
-const progressWidth = ref(100)
-let timer: number | null = null
-
-const startTimer = () => {
-  if (timer) {
-    clearInterval(timer)
-  }
-  progressWidth.value = 100
-  const startTime = Date.now()
-  const endTime = startTime + props.duration
-
-  timer = setInterval(() => {
-    const now = Date.now()
-    const remaining = endTime - now
-    progressWidth.value = (remaining / props.duration) * 100
-
-    if (remaining <= 0) {
-      clearInterval(timer!)
-      emit('close')
-    }
-  }, 10)
+const alertIcons = {
+  success: CheckCircle,
+  error: AlertTriangle,
+  warning: AlertCircle,
+  info: Info
 }
 
-watch(
-  () => props.show,
-  (newValue) => {
-    if (newValue && props.autoClose) {
-      startTimer()
-    } else if (!newValue && timer) {
-      clearInterval(timer)
-    }
-  }
-)
+let intervalId: number
 
 onMounted(() => {
-  if (props.show && props.autoClose) {
-    startTimer()
-  }
+  intervalId = setInterval(() => {
+    alerts.value.forEach((alert) => {
+      updateAlertProgress(alert.id)
+    })
+  }, 100)
 })
 
 onUnmounted(() => {
-  if (timer) {
-    clearInterval(timer)
-  }
+  clearInterval(intervalId)
 })
 </script>
 
 <style scoped>
 .alert-fade-enter-active,
 .alert-fade-leave-active {
-  transition:
-    opacity 0.3s,
-    transform 0.3s;
+  transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
-
 .alert-fade-enter-from,
 .alert-fade-leave-to {
   opacity: 0;
-  transform: translateX(20px);
+  transform: translateX(50px) scale(0.95);
 }
 </style>

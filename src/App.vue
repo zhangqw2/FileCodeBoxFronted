@@ -2,27 +2,15 @@
 import { ref, watchEffect, provide, onMounted } from 'vue'
 import { RouterView } from 'vue-router'
 import ThemeToggle from './components/ThemeToggle.vue'
-import AlertComponent from './components/AlertComponent.vue'
 import { useRouter } from 'vue-router'
 import api from './utils/api'
 const isDarkMode = ref(false)
 const isLoading = ref(false)
 const router = useRouter()
+import AlertComponent from '@/components/AlertComponent.vue'
+import { useAlertStore } from '@/stores/alertStore'
 
-const showAlert = ref(false)
-const alertMessage = ref('')
-const alertType = ref('success')
-const closeAlert = () => {
-  showAlert.value = false
-}
-const showAlertMessage = (
-  message: string,
-  type: 'success' | 'error' | 'warning' | 'info' = 'success'
-) => {
-  alertMessage.value = message
-  alertType.value = type
-  showAlert.value = true
-}
+const alertStore = useAlertStore()
 // 检查系统颜色模式
 const checkSystemColorScheme = () => {
   return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
@@ -59,7 +47,7 @@ onMounted(() => {
         localStorage.getItem('notify') !== res.detail.notify_title + res.detail.notify_content
       ) {
         localStorage.setItem('notify', res.detail.notify_title + res.detail.notify_content)
-        showAlertMessage(res.detail.notify_title + ': ' + res.detail.notify_content, 'success')
+        alertStore.showAlert(res.detail.notify_title + ': ' + res.detail.notify_content, 'success')
       }
     }
   })
@@ -96,12 +84,8 @@ provide('isLoading', isLoading)
         <component :is="Component" :key="$route.fullPath" />
       </transition>
     </RouterView>
-    <AlertComponent
-      :show="showAlert"
-      :message="alertMessage"
-      :type="alertType"
-      @close="closeAlert"
-    />
+
+    <AlertComponent />
   </div>
 </template>
 
