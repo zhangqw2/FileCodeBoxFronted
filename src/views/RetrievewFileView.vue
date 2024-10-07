@@ -146,29 +146,30 @@
             <div
               v-for="record in records"
               :key="record.id"
-              class="bg-opacity-50 rounded-lg p-4 flex justify-between items-center shadow-md hover:shadow-lg transition duration-300 transform hover:scale-102"
+              class="bg-opacity-50 rounded-lg p-4 flex items-center shadow-md hover:shadow-lg transition duration-300 transform hover:scale-102"
               :class="[isDarkMode ? 'bg-gray-800 hover:bg-gray-700' : 'bg-gray-100 hover:bg-white']"
             >
-              <div class="flex items-center space-x-4">
-                <div class="flex-shrink-0">
-                  <FileIcon
-                    class="w-10 h-10"
-                    :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']"
-                  />
-                </div>
-                <div>
-                  <p
-                    class="font-medium text-lg"
-                    :class="[isDarkMode ? 'text-white' : 'text-gray-800']"
-                  >
-                    {{ record.filename }}
-                  </p>
-                  <p class="text-sm" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-600']">
-                    {{ record.date }} · {{ record.size }}
-                  </p>
-                </div>
+              <div class="flex-shrink-0 mr-4">
+                <FileIcon
+                  class="w-10 h-10"
+                  :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']"
+                />
               </div>
-              <div class="flex space-x-2">
+              <div class="flex-grow min-w-0 mr-4">
+                <p
+                  class="font-medium text-lg truncate"
+                  :class="[isDarkMode ? 'text-white' : 'text-gray-800']"
+                >
+                  {{ record.filename }}
+                </p>
+                <p
+                  class="text-sm truncate"
+                  :class="[isDarkMode ? 'text-gray-400' : 'text-gray-600']"
+                >
+                  {{ record.date }} · {{ record.size }}
+                </p>
+              </div>
+              <div class="flex-shrink-0 flex space-x-2">
                 <button
                   @click="viewDetails(record)"
                   class="p-2 rounded-full hover:bg-opacity-20 transition duration-300"
@@ -213,11 +214,11 @@
         class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
       >
         <div
-          class="p-8 rounded-2xl max-w-md w-full mx-4 shadow-2xl transform transition-all duration-300 ease-out backdrop-filter backdrop-blur-lg bg-opacity-70"
+          class="p-8 rounded-2xl max-w-md w-full mx-4 shadow-2xl transform transition-all duration-300 ease-out backdrop-filter backdrop-blur-lg bg-opacity-70 overflow-hidden"
           :class="[isDarkMode ? 'bg-gray-800' : 'bg-white']"
         >
           <h3
-            class="text-2xl font-bold mb-6"
+            class="text-2xl font-bold mb-6 truncate"
             :class="[isDarkMode ? 'text-white' : 'text-gray-800']"
           >
             文件详情
@@ -225,28 +226,37 @@
           <div class="space-y-4">
             <div class="flex items-center">
               <FileIcon
-                class="w-6 h-6 mr-3"
+                class="w-6 h-6 mr-3 flex-shrink-0"
                 :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']"
               />
-              <p :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']">
+              <p
+                :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']"
+                class="truncate flex-grow"
+              >
                 <span class="font-medium">文件名：</span>{{ selectedRecord.filename }}
               </p>
             </div>
             <div class="flex items-center">
               <CalendarIcon
-                class="w-6 h-6 mr-3"
+                class="w-6 h-6 mr-3 flex-shrink-0"
                 :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']"
               />
-              <p :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']">
+              <p
+                :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']"
+                class="truncate flex-grow"
+              >
                 <span class="font-medium">取件日期：</span>{{ selectedRecord.date }}
               </p>
             </div>
             <div class="flex items-center">
               <HardDriveIcon
-                class="w-6 h-6 mr-3"
+                class="w-6 h-6 mr-3 flex-shrink-0"
                 :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']"
               />
-              <p :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']">
+              <p
+                :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']"
+                class="truncate flex-grow"
+              >
                 <span class="font-medium">文件大小：</span>{{ selectedRecord.size }}
               </p>
             </div>

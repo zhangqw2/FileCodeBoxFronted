@@ -81,13 +81,15 @@
                 />
                 <p
                   :class="[
-                    'mt-4 text-sm transition-colors duration-300',
+                    'mt-4 text-sm transition-colors duration-300 w-full text-center',
                     isDarkMode
                       ? 'text-gray-400 group-hover:text-indigo-400'
                       : 'text-gray-600 group-hover:text-indigo-600'
                   ]"
                 >
-                  {{ selectedFile ? selectedFile.name : '点击或拖放文件到此处上传' }}
+                  <span class="block truncate">
+                    {{ selectedFile ? selectedFile.name : '点击或拖放文件到此处上传' }}
+                  </span>
                 </p>
                 <p :class="['mt-2 text-xs', isDarkMode ? 'text-gray-500' : 'text-gray-400']">
                   支持各种常见格式，最大20MB
@@ -226,29 +228,30 @@
             <div
               v-for="record in sendRecords"
               :key="record.id"
-              class="bg-opacity-50 rounded-lg p-4 flex justify-between items-center shadow-md hover:shadow-lg transition duration-300 transform hover:scale-102"
+              class="bg-opacity-50 rounded-lg p-4 flex items-center shadow-md hover:shadow-lg transition duration-300 transform hover:scale-102"
               :class="[isDarkMode ? 'bg-gray-800 hover:bg-gray-700' : 'bg-gray-100 hover:bg-white']"
             >
-              <div class="flex items-center space-x-4">
-                <div class="flex-shrink-0">
-                  <FileIcon
-                    class="w-10 h-10"
-                    :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']"
-                  />
-                </div>
-                <div>
-                  <p
-                    class="font-medium text-lg"
-                    :class="[isDarkMode ? 'text-white' : 'text-gray-800']"
-                  >
-                    {{ record.filename }}
-                  </p>
-                  <p class="text-sm" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-600']">
-                    {{ record.date }} · {{ record.size }}
-                  </p>
-                </div>
+              <div class="flex-shrink-0 mr-4">
+                <FileIcon
+                  class="w-10 h-10"
+                  :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']"
+                />
               </div>
-              <div class="flex space-x-2">
+              <div class="flex-grow min-w-0 mr-4">
+                <p
+                  class="font-medium text-lg truncate"
+                  :class="[isDarkMode ? 'text-white' : 'text-gray-800']"
+                >
+                  {{ record.filename }}
+                </p>
+                <p
+                  class="text-sm truncate"
+                  :class="[isDarkMode ? 'text-gray-400' : 'text-gray-600']"
+                >
+                  {{ record.date }} · {{ record.size }}
+                </p>
+              </div>
+              <div class="flex-shrink-0 flex space-x-2">
                 <button
                   @click="copyRetrieveLink(record.retrieveCode)"
                   class="p-2 rounded-full hover:bg-opacity-20 transition duration-300"
