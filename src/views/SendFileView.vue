@@ -132,19 +132,22 @@
               <option value="count">按查看次数</option>
               <option value="forever">永久</option>
             </select>
-            <div v-if="expirationMethod !== 'forever'" class="flex items-center space-x-2">
+            <div
+              v-if="expirationMethod !== 'forever'"
+              class="flex flex-wrap items-center space-x-2"
+            >
               <input
                 v-model="expirationValue"
                 type="number"
                 :placeholder="getPlaceholder()"
                 :class="[
-                  'flex-grow px-4 py-2 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500',
+                  'flex-grow px-4 py-2 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-2 sm:mb-0',
                   isDarkMode
                     ? 'bg-gray-800 bg-opacity-50 text-white'
                     : 'bg-white text-gray-900 border border-gray-300'
                 ]"
               />
-              <span :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']">
+              <span :class="['whitespace-nowrap', isDarkMode ? 'text-gray-300' : 'text-gray-700']">
                 {{ getUnit() }}
               </span>
             </div>
@@ -594,7 +597,6 @@ const handleSubmit = async () => {
     if (sendType.value === 'file') {
       formData.append('file', selectedFile.value!)
     } else {
-      // 创建一个文本文件并添加到 FormData
       const textBlob = new Blob([textContent.value], { type: 'text/plain' })
       formData.append('file', textBlob, 'text_content.txt')
     }
@@ -707,7 +709,7 @@ const copyRetrieveLink = async (code: string) => {
     alertStore.showAlert('取件链接已复制到剪贴板', 'success')
   } catch (err) {
     console.error('无法复制取件链接: ', err)
-    alertStore.showAlert('复制失败,请手动复制取件链接', 'error')
+    alertStore.showAlert('复制失败,请���动复制取件链接', 'error')
   }
 }
 
