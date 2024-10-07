@@ -132,24 +132,28 @@
               <option value="count">按查看次数</option>
               <option value="forever">永久</option>
             </select>
-            <div
-              v-if="expirationMethod !== 'forever'"
-              class="flex flex-wrap items-center space-x-2"
-            >
-              <input
-                v-model="expirationValue"
-                type="number"
-                :placeholder="getPlaceholder()"
-                :class="[
-                  'flex-grow px-4 py-2 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-2 sm:mb-0',
-                  isDarkMode
-                    ? 'bg-gray-800 bg-opacity-50 text-white'
-                    : 'bg-white text-gray-900 border border-gray-300'
-                ]"
-              />
-              <span :class="['whitespace-nowrap', isDarkMode ? 'text-gray-300' : 'text-gray-700']">
-                {{ getUnit() }}
-              </span>
+            <div v-if="expirationMethod !== 'forever'" class="flex items-center space-x-2">
+              <div class="relative flex-grow">
+                <input
+                  v-model="expirationValue"
+                  type="number"
+                  :placeholder="getPlaceholder()"
+                  :class="[
+                    'w-full px-4 py-2 pr-16 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500',
+                    isDarkMode
+                      ? 'bg-gray-800 bg-opacity-50 text-white'
+                      : 'bg-white text-gray-900 border border-gray-300'
+                  ]"
+                />
+                <span
+                  :class="[
+                    'absolute right-3 top-1/2 transform -translate-y-1/2',
+                    isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                  ]"
+                >
+                  {{ getUnit() }}
+                </span>
+              </div>
             </div>
           </div>
           <!-- 提交按钮 -->
@@ -709,7 +713,7 @@ const copyRetrieveLink = async (code: string) => {
     alertStore.showAlert('取件链接已复制到剪贴板', 'success')
   } catch (err) {
     console.error('无法复制取件链接: ', err)
-    alertStore.showAlert('复制失败,请���动复制取件链接', 'error')
+    alertStore.showAlert('复制失败,请动复制取件链接', 'error')
   }
 }
 
