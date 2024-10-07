@@ -95,7 +95,7 @@
               </div>
             </div>
             <div v-else key="text" class="grid grid-cols-1 gap-8">
-              <!-- 文本��入区域 -->
+              <!-- 文本输入区域 -->
               <div v-if="sendType === 'text'" class="flex flex-col">
                 <textarea
                   id="text-content"
@@ -294,7 +294,7 @@
             class="text-2xl font-bold mb-6"
             :class="[isDarkMode ? 'text-white' : 'text-gray-800']"
           >
-            文件详
+            文件详情
           </h3>
           <div class="space-y-4">
             <div class="flex items-center">
@@ -436,7 +436,7 @@ const handleFileUpload = async (event: Event) => {
   if (target.files && target.files.length > 0) {
     selectedFile.value = target.files[0]
     fileHash.value = await calculateFileHash(selectedFile.value)
-    startChunkUpload()
+    // startChunkUpload()
   }
 }
 
@@ -575,7 +575,7 @@ const getUnit = () => {
 
 const handleSubmit = async () => {
   if (sendType.value === 'file' && !selectedFile.value) {
-    alertStore.showAlert('请选择要上传的件', 'error')
+    alertStore.showAlert('请选择要上传的文件', 'error')
     return
   }
   if (sendType.value === 'text' && !textContent.value.trim()) {
@@ -589,36 +589,50 @@ const handleSubmit = async () => {
 
   try {
     let response: any
-    if (sendType.value === 'text') {
-      // 使用 FormData 发送文本
-      const formData = new FormData()
-      formData.append('text', textContent.value)
-      if (expirationMethod.value !== 'forever') {
-        formData.append('expire_value', expirationValue.value)
-      }
-      formData.append('expire_style', expirationMethod.value)
-      response = await api.post('/share/text/', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      })
+    const formData = new FormData()
+
+    if (sendType.value === 'file') {
+      formData.append('file', selectedFile.value!)
     } else {
-      // 处理文件上传的逻辑
-      // ... 文件上传的代码 ...
+      // 创建一个文本文件并添加到 FormData
+      const textBlob = new Blob([textContent.value], { type: 'text/plain' })
+      formData.append('file', textBlob, 'text_content.txt')
     }
+
+    if (expirationMethod.value !== 'forever') {
+      formData.append('expire_value', expirationValue.value)
+    }
+    formData.append('expire_style', expirationMethod.value)
+
+    // 添加上传进度监听
+    const config = {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      },
+      onUploadProgress: (progressEvent: any) => {
+        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+        uploadProgress.value = percentCompleted
+      }
+    }
+
+    response = await api.post('/share/file/', formData, config)
 
     if (response && response.code === 200) {
       const retrieveCode = response.detail.code
+      const fileName = response.detail.name
       // 添加新的发送记录
       const newRecord = {
         id: Date.now(),
-        filename: sendType.value === 'text' ? '文本内容.txt' : selectedFile.value!.name,
+        filename: fileName,
         date: new Date().toISOString().split('T')[0],
         size:
           sendType.value === 'text'
-            ? '0.1 MB'
+            ? `${(textContent.value.length / 1024).toFixed(2)} KB`
             : `${(selectedFile.value!.size / (1024 * 1024)).toFixed(1)} MB`,
-        expiration: `${expirationValue.value}${getUnit()}后过期`,
+        expiration:
+          expirationMethod.value === 'forever'
+            ? '永久'
+            : `${expirationValue.value}${getUnit()}后过期`,
         retrieveCode: retrieveCode
       }
       fileDataStore.addShareData(newRecord)
@@ -642,6 +656,9 @@ const handleSubmit = async () => {
   } catch (error) {
     console.error('发送失败:', error)
     alertStore.showAlert('发送失败,请稍后重试', 'error')
+  } finally {
+    // 确保无论成功还是失败,最后都重置进度条
+    uploadProgress.value = 0
   }
 }
 
