@@ -780,7 +780,7 @@ const handleFileUpload = (event: Event) => {
   }
 }
 
-const handleFileDrop = (event: Event) => {
+const handleFileDrop = (event: any) => {
   const files = (event.dataTransfer as DataTransfer).files
   if (files && files.length > 0) {
     console.log('Dropped files:', files)
@@ -834,7 +834,7 @@ const displayedPages = computed(() => {
 })
 
 // 页码改变处理函数
-const handlePageChange = async (page: number) => {
+const handlePageChange = async (page: any) => {
   if (page < 1 || page > totalPages.value) return
   params.value.page = page
   await loadFiles() // 重新加载文件列表
@@ -843,35 +843,13 @@ const handlePageChange = async (page: number) => {
 // 加载文件列表
 const loadFiles = async () => {
   try {
-    // 这里实现实际的API调用
-    // const response = await api.getFiles({
-    //   page: params.value.page,
-    //   size: params.value.size,
-    //   search: fileSearchQuery.value,
-    //   type: fileTypeFilter.value
-    // });
-
-    // params.value.total = response.total;
-    // files.value = response.data;
-
-    // 模拟API响应
-    params.value.total = 85 // 示例总数
+    params.value.total = 85
     // 更新文件列表数据...
   } catch (error) {
     console.error('加载文件列表失败:', error)
     // 处理错误...
   }
 }
-
-// 监听搜索和筛选条件变化
-watch(
-  [fileSearchQuery, fileTypeFilter],
-  () => {
-    params.value.page = 1 // 重置页码
-    loadFiles()
-  },
-  { debounce: 300 }
-)
 
 // 初始加载
 onMounted(() => {
