@@ -409,7 +409,7 @@ import {
   ClipboardCopyIcon
 } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
-import BorderProgressBar from '../components/BorderProgressBar.vue'
+import BorderProgressBar from '@/components/common/BorderProgressBar.vue'
 import QRCode from 'qrcode.vue'
 import SparkMD5 from 'spark-md5'
 import { useFileDataStore } from '../stores/fileData'

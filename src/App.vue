@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { ref, watchEffect, provide, onMounted } from 'vue'
 import { RouterView } from 'vue-router'
-import ThemeToggle from './components/ThemeToggle.vue'
+import ThemeToggle from './components/common/ThemeToggle.vue'
 import { useRouter } from 'vue-router'
 import api from './utils/api'
 const isDarkMode = ref(false)
 const isLoading = ref(false)
 const router = useRouter()
-import AlertComponent from '@/components/AlertComponent.vue'
+import AlertComponent from '@/components/common/AlertComponent.vue'
 import { useAlertStore } from '@/stores/alertStore'
 
 const alertStore = useAlertStore()

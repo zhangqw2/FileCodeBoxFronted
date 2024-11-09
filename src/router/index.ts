@@ -12,6 +12,11 @@ const router = createRouter({
       path: '/send',
       name: 'Send',
       component: () => import('@/views/SendFileView.vue')
+    },
+    {
+      path: '/manage',
+      name: 'Manage',
+      component: () => import('@/views/ManageView.vue')
     }
   ]
 })
