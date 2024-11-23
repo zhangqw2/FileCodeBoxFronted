@@ -19,18 +19,19 @@
             <XIcon class="h-6 w-6" :class="[isDarkMode ? 'text-white' : 'text-gray-900']" />
           </button>
         </div>
-
         <div class="space-y-6">
           <div class="flex items-center space-x-4">
             <FileIcon class="h-12 w-12 text-indigo-500" />
             <div>
-              <h4 class="font-medium" :class="[isDarkMode ? 'text-white' : 'text-gray-900']">
+              <h4
+                class="font-medium truncate"
+                :class="[isDarkMode ? 'text-white' : 'text-gray-900']"
+              >
                 {{ record.filename }}
               </h4>
-              <p class="text-sm text-gray-500">{{ record.size }}</p>
+              <p class="text-sm text-gray-500 truncate">{{ record.size }}</p>
             </div>
           </div>
-
           <div class="space-y-4">
             <div class="flex items-center space-x-3">
               <CalendarIcon class="h-5 w-5 text-gray-400" />
@@ -45,7 +46,6 @@
               </span>
             </div>
           </div>
-
           <div class="flex justify-center">
             <QRCode
               :value="baseUrl + '/retrieve/' + record.code"

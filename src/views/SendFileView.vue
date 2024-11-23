@@ -662,9 +662,13 @@ const handleSubmit = async () => {
     } else {
       throw new Error('服务器响应异常')
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('发送失败:', error)
-    alertStore.showAlert('发送失败,请稍后重试', 'error')
+    if (error.response.data.detail) {
+      alertStore.showAlert(error.response.data.detail, 'error')
+    } else {
+      alertStore.showAlert('发送失败,请稍后重试', 'error')
+    }
   } finally {
     // 确保无论成功还是失败,最后都重置进度条
     uploadProgress.value = 0

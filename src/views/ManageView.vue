@@ -631,7 +631,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, inject, onMounted, onUnmounted, computed, watch } from 'vue'
+import { ref, inject, onMounted, onUnmounted, computed } from 'vue'
 import {
   BoxIcon,
   MenuIcon,

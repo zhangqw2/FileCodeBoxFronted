@@ -14,9 +14,32 @@ const router = createRouter({
       component: () => import('@/views/SendFileView.vue')
     },
     {
-      path: '/manage',
+      path: '/admin',
       name: 'Manage',
-      component: () => import('@/views/ManageView.vue')
+      component: () => import('@/layout/AdminLayout/AdminLayout.vue'),
+      redirect: '/admin/dashboard',
+      children: [
+        {
+          path: '/admin/dashboard',
+          name: 'Dashboard',
+          component: () => import('@/views/manage/DashboardView.vue')
+        },
+        {
+          path: '/admin/files',
+          name: 'FileManage',
+          component: () => import('@/views/manage/FileManageView.vue')
+        },
+        {
+          path: '/admin/settings',
+          name: 'Settings',
+          component: () => import('@/views/manage/SystemSettingsView.vue')
+        }
+      ]
+    },
+    {
+      path: '/login',
+      name: 'Login',
+      component: () => import('@/views/LoginView.vue')
     }
   ]
 })

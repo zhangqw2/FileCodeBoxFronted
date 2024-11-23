@@ -32,7 +32,10 @@
           >
             <div class="flex items-start justify-between">
               <div class="flex items-center space-x-3">
-                <FileIcon class="h-5 w-5 text-indigo-500" />
+                <FileIcon
+                  class="h-5 w-5 text-indigo-500"
+                  :class="[record.type === 'text' ? 'text-purple-500' : 'text-indigo-500']"
+                />
                 <div>
                   <h3
                     class="font-medium truncate max-w-[200px]"
@@ -46,8 +49,12 @@
               <div class="flex space-x-2">
                 <button
                   @click="$emit('view-details', record)"
-                  class="p-2 rounded-lg transition duration-300"
-                  :class="[isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100']"
+                  class="p-2 rounded-full hover:bg-opacity-20 transition duration-300"
+                  :class="[
+                    isDarkMode
+                      ? 'hover:bg-indigo-400 text-indigo-400'
+                      : 'hover:bg-indigo-100 text-indigo-600'
+                  ]"
                 >
                   <EyeIcon
                     class="h-4 w-4"
@@ -56,7 +63,12 @@
                 </button>
                 <button
                   @click="$emit('download', record)"
-                  class="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition duration-300"
+                  class="p-2 rounded-full hover:bg-opacity-20 transition duration-300"
+                  :class="[
+                    isDarkMode
+                      ? 'hover:bg-green-400 text-green-400'
+                      : 'hover:bg-green-100 text-green-600'
+                  ]"
                 >
                   <DownloadIcon
                     class="h-4 w-4"
@@ -65,12 +77,12 @@
                 </button>
                 <button
                   @click="$emit('delete', record)"
-                  class="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition duration-300"
+                  class="p-2 rounded-full hover:bg-opacity-20 transition duration-300"
+                  :class="[
+                    isDarkMode ? 'hover:bg-red-400 text-red-400' : 'hover:bg-red-100 text-red-600'
+                  ]"
                 >
-                  <TrashIcon
-                    class="h-4 w-4"
-                    :class="[isDarkMode ? 'text-gray-400' : 'text-gray-600']"
-                  />
+                  <TrashIcon class="h-4 w-4" />
                 </button>
               </div>
             </div>
