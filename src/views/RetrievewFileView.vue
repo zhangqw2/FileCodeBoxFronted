@@ -45,10 +45,11 @@
                   id="code"
                   v-model="code"
                   type="text"
-                  class="w-full px-4 py-3 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 pr-10"
+                  class="w-full px-4 py-3 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 pr-10"
                   :class="[
                     isDarkMode ? 'bg-gray-700 bg-opacity-50' : 'bg-gray-100',
-                    { 'ring-2 ring-red-500': error }
+                    { 'ring-2 ring-red-500': error },
+                    isDarkMode ? 'text-gray-300' : 'text-gray-800'
                   ]"
                   placeholder="请输入5位取件码"
                   required
@@ -592,19 +593,26 @@ const showContentPreview = () => {
 
 /* 添加 Markdown 样式 */
 :deep(.prose) {
-  @apply text-left;
+  text-align: left;
 }
-:deep(.prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6) {
-  @apply text-indigo-600 dark:text-indigo-400;
+:deep(.prose h1),
+:deep(.prose h2),
+:deep(.prose h3),
+:deep(.prose h4),
+:deep(.prose h5),
+:deep(.prose h6) {
+  color: rgb(79, 70, 229); /* text-indigo-600 */
 }
-:deep(.prose a) {
-  @apply text-blue-600 dark:text-blue-400;
-}
-:deep(.prose code) {
-  @apply bg-gray-100 dark:bg-gray-700 rounded px-1;
-}
-:deep(.prose pre) {
-  @apply bg-gray-100 dark:bg-gray-700 rounded p-4 overflow-x-auto;
+
+@media (prefers-color-scheme: dark) {
+  :deep(.prose h1),
+  :deep(.prose h2),
+  :deep(.prose h3),
+  :deep(.prose h4),
+  :deep(.prose h5),
+  :deep(.prose h6) {
+    color: rgb(129, 140, 248); /* text-indigo-400 */
+  }
 }
 
 /* 添加新的宽度类 */

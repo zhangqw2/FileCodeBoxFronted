@@ -11,7 +11,7 @@
         <div class="relative flex-1">
           <input
             type="text"
-            v-model="fileSearchQuery"
+            v-model="params.keyword"
             :class="[
               isDarkMode
                 ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
@@ -25,51 +25,18 @@
             :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']"
           />
         </div>
-
-        <select
-          v-model="fileTypeFilter"
-          :class="[
-            isDarkMode
-              ? 'bg-gray-700 border-gray-600 text-white'
-              : 'bg-white border-gray-300 text-gray-900'
-          ]"
-          class="border rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-        >
-          <option value="">所有类型</option>
-          <option value="PDF">PDF</option>
-          <option value="Image">图片</option>
-          <option value="Video">视频</option>
-          <option value="Document">文档</option>
-        </select>
       </div>
 
-      <!-- 上传按钮 -->
+      <!-- 搜索按钮 -->
       <div class="flex gap-4">
         <button
-          @click="$refs.fileInput.click()"
+          @click="handleSearch"
           class="flex items-center px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors duration-200"
         >
-          <UploadIcon class="w-5 h-5 mr-2" />
-          上传文件
+          <SearchIcon class="w-5 h-5 mr-2" />
+          搜索
         </button>
-        <input ref="fileInput" type="file" multiple class="hidden" @change="handleFileUpload" />
       </div>
-    </div>
-
-    <!-- 拖拽上传区域 -->
-    <div
-      v-if="showDropZone"
-      class="mb-6 border-2 border-dashed rounded-lg p-8 text-center"
-      :class="[isDarkMode ? 'border-gray-600 bg-gray-800/50' : 'border-gray-300 bg-gray-50']"
-      @drop.prevent="handleFileDrop"
-      @dragover.prevent="showDropZone = true"
-      @dragleave.prevent="showDropZone = false"
-    >
-      <UploadCloudIcon
-        class="mx-auto w-12 h-12 mb-4"
-        :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']"
-      />
-      <p :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']">拖拽文件到此处上传</p>
     </div>
 
     <!-- File List -->
@@ -106,7 +73,14 @@
                 : 'bg-white divide-y divide-gray-200'
             ]"
           >
-            <tr v-for="file in files" :key="file.id">
+            <tr v-for="file in tableData" :key="file.id">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                  <span class="font-medium" :class="[isDarkMode ? 'text-white' : 'text-gray-900']">
+                    {{ file.code }}
+                  </span>
+                </div>
+              </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="flex items-center">
                   <FileIcon
@@ -114,28 +88,29 @@
                     :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-500']"
                   />
                   <span class="font-medium" :class="[isDarkMode ? 'text-white' : 'text-gray-900']">
-                    {{ file.name }}
+                    {{ file.prefix }}
                   </span>
                 </div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <span :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']">
-                  {{ file.size }}
+                  {{ Math.round((file.size / 1024 / 1024) * 100) / 100 }}MB
                 </span>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <span :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']">
-                  {{ file.type }}
+                  {{ file.text }}
                 </span>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <span :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']">
-                  {{ file.lastModified }}
+                  {{ file.expired_at ? formatTimestamp(file.expired_at) : '永久' }}
                 </span>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                <button
-                  @click="downloadFile(file)"
+                <!-- <button
+                  v-if="file.file_path"
+                  @click="downloadFile(file.id)"
                   class="mr-3 transition-colors duration-200"
                   :class="[
                     isDarkMode
@@ -144,9 +119,9 @@
                   ]"
                 >
                   下载
-                </button>
+                </button> -->
                 <button
-                  @click="deleteFile(file)"
+                  @click="deleteFile(file.id)"
                   class="transition-colors duration-200"
                   :class="[
                     isDarkMode
@@ -244,74 +219,127 @@
 
 <script setup lang="ts">
 import { inject, ref, computed } from 'vue'
+import api from '@/utils/api'
+import { FileIcon, SearchIcon } from 'lucide-vue-next'
+import { useAlertStore } from '@/stores/alertStore'
+const alertStore = useAlertStore()
+function formatTimestamp(timestamp: string): string {
+  const date = new Date(timestamp)
+  const year = date.getFullYear()
+  const month = (date.getMonth() + 1).toString().padStart(2, '0')
+  const day = date.getDate().toString().padStart(2, '0')
+  const hours = date.getHours().toString().padStart(2, '0')
+  const minutes = date.getMinutes().toString().padStart(2, '0')
+  const seconds = date.getSeconds().toString().padStart(2, '0')
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
+}
+
 const isDarkMode = inject('isDarkMode')
+const tableData: any = ref([])
 
-// 新增的响应式变量
-const fileSearchQuery = ref('')
-const fileTypeFilter = ref('')
-const showDropZone = ref(false)
-
-const handleFileUpload = (event: Event) => {
-  const files = (event.target as HTMLInputElement).files
-  if (files && files.length > 0) {
-    console.log('Uploading files:', files)
-  }
-}
-
-interface File {
-  id: number
-  name: string
-  size: string
-  type: string
-  lastModified: string
-}
-
-const fileTableHeaders = ['名称', '大小', '类型', '最后修改', '操作']
-
-const files: File[] = [
-  { id: 1, name: 'document.pdf', size: '2.5 MB', type: 'PDF', lastModified: '2024-01-15' },
-  { id: 2, name: 'image.jpg', size: '1.8 MB', type: 'Image', lastModified: '2024-01-14' },
-  {
-    id: 3,
-    name: 'spreadsheet.xlsx',
-    size: '3.2 MB',
-    type: 'Spreadsheet',
-    lastModified: '2024-01-13'
-  },
-  {
-    id: 4,
-    name: 'presentation.pptx',
-    size: '5.1 MB',
-    type: 'Presentation',
-    lastModified: '2024-01-12'
-  },
-  { id: 5, name: 'video.mp4', size: '15.7 MB', type: 'Video', lastModified: '2024-01-11' }
-]
-
-const handleFileDrop = (event: any) => {
-  const files = (event.dataTransfer as DataTransfer).files
-  if (files && files.length > 0) {
-    console.log('Dropped files:', files)
-  }
-}
+// 修改文件表头
+const fileTableHeaders = ['取件码', '名称', '大小', '描述', '过期时间', '操作']
 
 // 分页参数
 const params = ref({
   page: 1,
   size: 10,
-  total: 0
+  total: 0,
+  keyword: ''
 })
+
+// 下载文件处理
+const downloadFile = async (id: number) => {
+  try {
+    const response = await api({
+      url: '/admin/file/download',
+      method: 'get',
+      params: { id },
+      responseType: 'blob'
+    })
+
+    const contentDisposition = response.headers['content-disposition']
+    let filename = 'file'
+    const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/)
+    if (filenameMatch != null && filenameMatch[1]) {
+      filename = filenameMatch[1].replace(/['"]/g, '')
+    }
+
+    // @ts-ignore
+    if (window.showSaveFilePicker) {
+      await saveFileByWebApi(response.data, filename)
+    } else {
+      await saveFileByElementA(response.data, filename)
+    }
+  } catch (error) {
+    console.error('下载失败:', error)
+  }
+}
+
+// 删除文件处理
+const deleteFile = async (id: number) => {
+  try {
+    await api({
+      url: '/admin/file/delete',
+      method: 'delete',
+      data: { id }
+    })
+    await loadFiles()
+  } catch (error) {
+    console.error('删除失败:', error)
+  }
+}
+
+// 文件保存辅助函数
+async function saveFileByElementA(fileBlob: Blob, filename: string) {
+  const downloadUrl = window.URL.createObjectURL(fileBlob)
+  const link = document.createElement('a')
+  link.href = downloadUrl
+  link.download = filename
+  document.body.appendChild(link)
+  link.click()
+  window.URL.revokeObjectURL(downloadUrl)
+  document.body.removeChild(link)
+}
+
+async function saveFileByWebApi(fileBlob: Blob, filename: string) {
+  // @ts-ignore
+  const newHandle = await window.showSaveFilePicker({
+    suggestedName: filename
+  })
+  const writableStream = await newHandle.createWritable()
+  await writableStream.write(fileBlob)
+  await writableStream.close()
+}
+
+// 加载文件列表
+const loadFiles = async () => {
+  try {
+    const res: any = await api({
+      url: '/admin/file/list',
+      method: 'get',
+      params: params.value
+    })
+    tableData.value = res.detail.data
+    params.value.total = res.detail.total
+    alertStore.showAlert('加载成功', 'success')
+  } catch (error) {
+    console.error('加载文件列表失败:', error)
+  }
+}
+
+// 页码改变处理函数
+const handlePageChange = async (page: any) => {
+  if (page < 1 || page > totalPages.value) return
+  params.value.page = page
+  await loadFiles()
+}
+
+// 初始加载
+loadFiles()
 
 // 计算总页数
 const totalPages = computed(() => Math.ceil(params.value.total / params.value.size))
-
-const downloadFile = (file: File) => {
-  console.log('Downloading file:', file.name)
-}
-
-const deleteFile = (file: File) => {
-  console.log('Deleting file:', file.name)
-}
 
 // 计算要显示的页码
 const displayedPages = computed(() => {
@@ -349,21 +377,9 @@ const displayedPages = computed(() => {
   return pages
 })
 
-// 页码改变处理函数
-const handlePageChange = async (page: any) => {
-  if (page < 1 || page > totalPages.value) return
-  params.value.page = page
-  await loadFiles() // 重新加载文件列表
-}
-
-// 加载文件列表
-const loadFiles = async () => {
-  try {
-    params.value.total = 85
-    // 更新文件列表数据...
-  } catch (error) {
-    console.error('加载文件列表失败:', error)
-    // 处理错误...
-  }
+// 添加搜索处理函数
+const handleSearch = async () => {
+  params.value.page = 1 // 重置页码到第一页
+  await loadFiles()
 }
 </script>

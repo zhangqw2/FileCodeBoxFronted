@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { inject, ref } from 'vue'
 import api from '@/utils/api'
+import { useAlertStore } from '@/stores/alertStore'
 
 const isDarkMode = inject('isDarkMode')
 interface ConfigState {
@@ -124,6 +125,7 @@ const refreshData = () => {
     }
   })
 }
+const alertStore = useAlertStore()
 // 转换文件大小为字节
 const convertToBytes = (size: number, unit: string): number => {
   const units = {
@@ -151,9 +153,9 @@ const submitSave = () => {
     data: formData
   }).then((res: any) => {
     if (res.code == 200) {
-      alert('保存成功')
+      alertStore.showAlert('保存成功', 'success')
     } else {
-      alert(res.message)
+      alertStore.showAlert(res.message, 'error')
     }
   })
 }
