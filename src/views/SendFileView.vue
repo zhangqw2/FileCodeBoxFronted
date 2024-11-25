@@ -92,7 +92,7 @@
                   </span>
                 </p>
                 <p :class="['mt-2 text-xs', isDarkMode ? 'text-gray-500' : 'text-gray-400']">
-                  支持各种常见格式，最大20MB
+                  支持各种常见格式，最大{{ getStorageUnit(config.uploadSize) }}
                 </p>
               </div>
             </div>
@@ -128,11 +128,9 @@
                   : 'bg-white text-gray-900 border border-gray-300'
               ]"
             >
-              <option value="day">按天数</option>
-              <option value="hour">按小时</option>
-              <option value="minute">按分钟</option>
-              <option value="count">按查看次数</option>
-              <option value="forever">永久</option>
+              <option v-for="item in config.expireStyle" :value="item" :key="item">
+                {{ getUnit(item) }}
+              </option>
             </select>
             <div v-if="expirationMethod !== 'forever'" class="flex items-center space-x-2">
               <div class="relative flex-grow">
@@ -414,6 +412,11 @@ import QRCode from 'qrcode.vue'
 import SparkMD5 from 'spark-md5'
 import { useFileDataStore } from '../stores/fileData'
 import api from '@/utils/api'
+import { copyRetrieveLink, copyRetrieveCode } from '@/utils/clipboard'
+import { getStorageUnit } from '@/utils/convert'
+
+const config: any = JSON.parse(localStorage.getItem('config') || '{}')
+console.log(config)
 
 const router = useRouter()
 const isDarkMode = inject('isDarkMode')
@@ -549,8 +552,8 @@ const mergeChunks = async (fileHash: string, totalChunks: number) => {
   console.log(`请求合并文件切片, fileHash: ${fileHash}, totalChunks: ${totalChunks}`)
 }
 
-const getPlaceholder = () => {
-  switch (expirationMethod.value) {
+const getPlaceholder = (value: string = expirationMethod.value) => {
+  switch (value) {
     case 'day':
       return '输入天数'
     case 'hour':
@@ -566,8 +569,8 @@ const getPlaceholder = () => {
   }
 }
 
-const getUnit = () => {
-  switch (expirationMethod.value) {
+const getUnit = (value: string = expirationMethod.value) => {
+  switch (value) {
     case 'day':
       return '天'
     case 'hour':
@@ -701,27 +704,6 @@ const getQRCodeValue = (record: any) => {
   // 这里返回你想要在二维码中编码的信息
   // 例如,可以是一个包含文件ID和取件码的URL
   return `${baseUrl}/?code=${record.retrieveCode}`
-}
-
-const copyRetrieveCode = async (code: string) => {
-  try {
-    await navigator.clipboard.writeText(code)
-    alertStore.showAlert('取件码已复制到剪贴板', 'success')
-  } catch (err) {
-    console.error('无法复制取件码: ', err)
-    alertStore.showAlert('复制失败,请手动复制取件码', 'error')
-  }
-}
-
-const copyRetrieveLink = async (code: string) => {
-  const link = `${baseUrl}/?code=${code}`
-  try {
-    await navigator.clipboard.writeText(link)
-    alertStore.showAlert('取件链接已复制到剪贴板', 'success')
-  } catch (err) {
-    console.error('无法复制取件链接: ', err)
-    alertStore.showAlert('复制失败,请动复制取件链接', 'error')
-  }
 }
 
 // 使用 onMounted 钩子延迟加载一些非关键资源或初始化

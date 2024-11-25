@@ -33,6 +33,7 @@ interface ConfigState {
   uploadCount: number
   errorMinute: number
   errorCount: number
+  s3_proxy: number
 }
 
 const config = ref<ConfigState>({
@@ -63,7 +64,8 @@ const config = ref<ConfigState>({
   s3_hostname: '',
   uploadCount: 1,
   errorMinute: 1,
-  errorCount: 1
+  errorCount: 1,
+  s3_proxy: 0
 })
 
 const fileSize = ref(1)
@@ -439,6 +441,99 @@ refreshData()
                     ]"
                   />
                 </div>
+
+                <div class="space-y-2">
+                  <label
+                    class="block text-sm font-medium"
+                    :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']"
+                  >
+                    S3 Region Name
+                  </label>
+                  <input
+                    type="text"
+                    v-model="config.s3_region_name"
+                    placeholder="auto"
+                    class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                    :class="[
+                      isDarkMode
+                        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 hover:border-gray-500'
+                        : 'border-gray-300 hover:border-gray-400 placeholder-gray-500'
+                    ]"
+                  />
+                </div>
+
+                <div class="space-y-2">
+                  <label
+                    class="block text-sm font-medium"
+                    :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']"
+                  >
+                    S3 Signature Version
+                  </label>
+                  <select
+                    v-model="config.s3_signature_version"
+                    class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                    :class="[
+                      isDarkMode
+                        ? 'bg-gray-700 border-gray-600 text-white hover:border-gray-500'
+                        : 'border-gray-300 hover:border-gray-400'
+                    ]"
+                  >
+                    <option value="s3v2">S3v2</option>
+                    <option value="s3v4">S3v4</option>
+                  </select>
+                </div>
+
+                <div class="space-y-2">
+                  <label
+                    class="block text-sm font-medium"
+                    :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']"
+                  >
+                    S3 Hostname
+                  </label>
+                  <input
+                    type="text"
+                    v-model="config.s3_hostname"
+                    class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                    :class="[
+                      isDarkMode
+                        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 hover:border-gray-500'
+                        : 'border-gray-300 hover:border-gray-400 placeholder-gray-500'
+                    ]"
+                  />
+                </div>
+
+                <div class="space-y-2">
+                  <label
+                    class="block text-sm font-medium mb-2"
+                    :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']"
+                  >
+                    启用代理
+                  </label>
+                  <div class="flex items-center">
+                    <button
+                      type="button"
+                      @click="config.s3_proxy = config.s3_proxy === 1 ? 0 : 1"
+                      class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                      :class="[config.s3_proxy === 1 ? 'bg-indigo-600' : 'bg-gray-200']"
+                      role="switch"
+                      :aria-checked="config.s3_proxy === 1"
+                    >
+                      <span
+                        class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+                        :class="[
+                          config.s3_proxy === 1 ? 'translate-x-5' : 'translate-x-0',
+                          isDarkMode && config.s3_proxy !== 1 ? 'bg-gray-100' : 'bg-white'
+                        ]"
+                      />
+                    </button>
+                    <span
+                      class="ml-3 text-sm"
+                      :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']"
+                    >
+                      {{ config.s3_proxy === 1 ? '已开启' : '已关闭' }}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -716,37 +811,4 @@ refreshData()
     </div>
   </div>
 </template>
-<style scoped>
-.custom-scrollbar {
-  &::-webkit-scrollbar {
-    width: 8px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: #cbd5e0;
-    border-radius: 4px;
-
-    &:hover {
-      background-color: #a0aec0;
-    }
-  }
-
-  /* 适配暗黑模式 */
-  :deep(.dark &::-webkit-scrollbar-thumb) {
-    background-color: #4a5568;
-
-    &:hover {
-      background-color: #2d3748;
-    }
-  }
-}
-
-/* 确保内容区域不会被截断 */
-.space-y-6 {
-  margin-bottom: 5rem;
-}
-</style>
+<style scoped></style>

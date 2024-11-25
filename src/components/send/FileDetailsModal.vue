@@ -98,7 +98,7 @@
 <script setup>
 import { FileIcon, CalendarIcon, ClockIcon, KeyIcon, XIcon } from 'lucide-vue-next'
 import QRCode from 'qrcode.vue'
-import { useAlertStore } from '@/stores/alertStore'
+import { copyToClipboard } from '@/utils/clipboard'
 
 const props = defineProps({
   record: Object,
@@ -106,17 +106,10 @@ const props = defineProps({
   baseUrl: String
 })
 
-const alertStore = useAlertStore()
-
 defineEmits(['close', 'show-preview'])
 
 const copyShareLink = async () => {
-  try {
-    await navigator.clipboard.writeText(`${props.baseUrl}/retrieve/${props.record.code}`)
-    alertStore.showAlert('链接已复制到剪贴板', 'success')
-  } catch (err) {
-    alertStore.showAlert('复制失败，请手动复制', 'error')
-  }
+  copyToClipboard(`${props.baseUrl}/retrieve/${props.record.code}`)
 }
 </script>
 

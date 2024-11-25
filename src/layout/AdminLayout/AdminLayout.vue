@@ -236,4 +236,37 @@ input:checked + .slider {
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 300ms;
 }
+
+.custom-scrollbar {
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #cbd5e0;
+    border-radius: 4px;
+
+    &:hover {
+      background-color: #a0aec0;
+    }
+  }
+
+  /* 适配暗黑模式 */
+  :deep(.dark &::-webkit-scrollbar-thumb) {
+    background-color: #4a5568;
+
+    &:hover {
+      background-color: #2d3748;
+    }
+  }
+}
+
+/* 确保内容区域不会被截断 */
+.space-y-6 {
+  margin-bottom: 5rem;
+}
 </style>

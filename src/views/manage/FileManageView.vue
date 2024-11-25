@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="p-6 h-screen overflow-y-auto custom-scrollbar">
     <h2 class="text-2xl font-bold mb-6" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">
       文件管理
     </h2>

@@ -1,5 +1,4 @@
 import axios from 'axios'
-import { useRouter } from 'vue-router'
 
 // 从环境变量中获取 API 基础 URL
 const baseURL =
@@ -13,7 +12,7 @@ const sanitizedBaseURL = typeof baseURL === 'string' ? baseURL : ''
 // 创建 axios 实例
 const api = axios.create({
   baseURL: sanitizedBaseURL,
-  timeout: 10000, // 请求超时时间
+  timeout: 1000000000000000, // 请求超时时间
   headers: {
     'Content-Type': 'application/json'
   }
