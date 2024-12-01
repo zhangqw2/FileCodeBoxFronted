@@ -240,7 +240,7 @@
                   class="font-medium text-lg truncate"
                   :class="[isDarkMode ? 'text-white' : 'text-gray-800']"
                 >
-                  {{ record.filename }}
+                  {{ record.filename ? record.filename : 'Text' }}
                 </p>
                 <p
                   class="text-sm truncate"
@@ -603,12 +603,13 @@ const handleSubmit = async () => {
   try {
     let response: any
     const formData = new FormData()
-
-    if (sendType.value === 'file') {
+    const isFile = sendType.value === 'file'
+    if (isFile) {
       formData.append('file', selectedFile.value!)
     } else {
-      const textBlob = new Blob([textContent.value], { type: 'text/plain' })
-      formData.append('file', textBlob, 'text_content.txt')
+      formData.append('text', textContent.value)
+      // const textBlob = new Blob([textContent.value], { type: 'text/plain' })
+      // formData.append('file', textBlob, 'text_content.txt')
     }
 
     if (expirationMethod.value !== 'forever') {
@@ -626,8 +627,11 @@ const handleSubmit = async () => {
         uploadProgress.value = percentCompleted
       }
     }
-
-    response = await api.post('/share/file/', formData, config)
+    if (isFile) {
+      response = await api.post('/share/file/', formData, config)
+    } else {
+      response = await api.post('/share/text/', formData, config)
+    }
 
     if (response && response.code === 200) {
       const retrieveCode = response.detail.code
@@ -696,14 +700,9 @@ const deleteRecord = (id: number) => {
     fileDataStore.deleteShareData(index)
   }
 }
-const baseUrl =
-  import.meta.env.MODE === 'production'
-    ? import.meta.env.VITE_API_BASE_URL_PROD
-    : import.meta.env.VITE_API_BASE_URL_DEV
+const baseUrl = window.location.origin + '/#/'
 const getQRCodeValue = (record: any) => {
-  // 这里返回你想要在二维码中编码的信息
-  // 例如,可以是一个包含文件ID和取件码的URL
-  return `${baseUrl}/?code=${record.retrieveCode}`
+  return `${baseUrl}?code=${record.retrieveCode}`
 }
 
 // 使用 onMounted 钩子延迟加载一些非关键资源或初始化

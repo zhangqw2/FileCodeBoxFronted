@@ -109,7 +109,7 @@ const props = defineProps({
 defineEmits(['close', 'show-preview'])
 
 const copyShareLink = async () => {
-  copyToClipboard(`${props.baseUrl}/retrieve/${props.record.code}`)
+  copyToClipboard(`${props.baseUrl}/#/?code=${props.record.code}`)
 }
 </script>
 

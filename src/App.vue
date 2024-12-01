@@ -100,6 +100,14 @@ provide('isLoading', isLoading)
   transition: background-color 0.5s ease;
 }
 
+.light {
+  @apply bg-gradient-to-br from-blue-50 via-indigo-50 to-white;
+}
+
+.dark {
+  @apply bg-gradient-to-br from-gray-900 via-indigo-900 to-black;
+}
+
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.3s ease;

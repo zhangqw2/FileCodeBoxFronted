@@ -8,6 +8,7 @@ interface ConfigState {
   name: string
   description: string
   file_storage: string
+  themesChoices: any[]
   expireStyle: string[]
   admin_token: string
   robotsText: string
@@ -34,12 +35,14 @@ interface ConfigState {
   errorMinute: number
   errorCount: number
   s3_proxy: number
+  themesSelect: string
 }
 
 const config = ref<ConfigState>({
   name: '',
   description: '',
   file_storage: '',
+  themesChoices: [],
   expireStyle: [],
   admin_token: '',
   robotsText: '',
@@ -65,7 +68,8 @@ const config = ref<ConfigState>({
   uploadCount: 1,
   errorMinute: 1,
   errorCount: 1,
-  s3_proxy: 0
+  s3_proxy: 0,
+  themesSelect: ''
 })
 
 const fileSize = ref(1)
@@ -268,6 +272,31 @@ refreshData()
             />
           </div>
 
+          <!-- 主题选择 -->
+          <div class="space-y-2">
+            <label
+              class="block text-sm font-medium"
+              :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']"
+            >
+              主题选择
+            </label>
+            <select
+              v-model="config.themesSelect"
+              class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border appearance-none bg-no-repeat bg-right focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none cursor-pointer"
+              :class="[
+                isDarkMode
+                  ? 'bg-gray-700 border-gray-600 text-white hover:border-gray-500'
+                  : 'border-gray-300 hover:border-gray-400'
+              ]"
+              style="
+                background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M7%208l3%203%203-3%22%20stroke%3D%22%236B7280%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E');
+              "
+            >
+              <option v-for="item in config.themesChoices" :value="item.key" :key="item.key">
+                {{ item.name }} (by {{ item.author }} V{{ item.version }})
+              </option>
+            </select>
+          </div>
           <div class="space-y-2">
             <label
               class="block text-sm font-medium"

@@ -269,7 +269,7 @@
               <p :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']">
                 <span class="font-medium">文件内容：</span>
               </p>
-              <div v-if="selectedRecord.content" class="ml-2">
+              <div v-if="selectedRecord.filename == 'Text'" class="ml-2">
                 <button
                   @click="showContentPreview"
                   class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition duration-300"
@@ -369,10 +369,7 @@ import { marked } from 'marked'
 import { useAlertStore } from '@/stores/alertStore'
 
 const alertStore = useAlertStore()
-const baseUrl =
-  import.meta.env.MODE === 'production'
-    ? import.meta.env.VITE_API_BASE_URL_PROD
-    : import.meta.env.VITE_API_BASE_URL_DEV
+const baseUrl = window.location.origin
 
 const router = useRouter()
 const isDarkMode = inject('isDarkMode')
@@ -486,7 +483,11 @@ const toSend = () => {
 }
 
 const getQRCodeValue = (record) => {
-  return `${baseUrl}${record.downloadUrl}`
+  if (record.downloadUrl) {
+    return `${baseUrl}${record.downloadUrl}`
+  } else {
+    return `${baseUrl}?code=${record.code}`
+  }
 }
 
 const downloadRecord = (record) => {
