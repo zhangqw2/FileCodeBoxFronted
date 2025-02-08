@@ -414,9 +414,10 @@ const handleSubmit = async () => {
     const res = await api.post('/share/select/', {
       code: code.value
     })
+    
     if (res.code === 200) {
       if (res.detail) {
-        const isFile = res.detail.text.startsWith('/share/download')
+        const isFile = res.detail.text.startsWith('/share/download') || res.detail.name !=='Text'
         const newFileData = {
           id: Date.now(),
           code: res.detail.code,
@@ -491,9 +492,11 @@ const getQRCodeValue = (record) => {
 }
 
 const downloadRecord = (record) => {
+  console.log(record);
+  
   if (record.downloadUrl) {
     // 如果是文件,直接下载
-    window.open(`${baseUrl}${record.downloadUrl}`, '_blank')
+    window.open(`${ record.downloadUrl.startsWith('http') ? '' : baseUrl }${record.downloadUrl}`, '_blank')
   } else if (record.content) {
     // 如果是文本,转成txt下载
     const blob = new Blob([record.content], { type: 'text/plain;charset=utf-8' })

@@ -2,7 +2,7 @@
   <transition-group
     name="alert-fade"
     tag="div"
-    class="fixed top-4 right-4 z-50 w-full sm:max-w-sm md:max-w-md space-y-4 px-4 sm:px-0"
+    class="fixed top-4 left-4 z-50 w-full sm:max-w-sm md:max-w-md space-y-4 px-4 sm:px-0"
   >
     <div
       v-for="alert in alerts"
@@ -89,6 +89,6 @@ onUnmounted(() => {
 .alert-fade-enter-from,
 .alert-fade-leave-to {
   opacity: 0;
-  transform: translateX(50px) scale(0.95);
+  transform: translateX(-50px) scale(0.95);
 }
 </style>

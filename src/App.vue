@@ -91,12 +91,8 @@ provide('isLoading', isLoading)
 
 <style>
 .app-container {
-  position: fixed;
-  top: 0;
-  left: 0;
+  min-height: 100vh;
   width: 100%;
-  height: 100%;
-  overflow: hidden;
   transition: background-color 0.5s ease;
 }
 
