@@ -17,6 +17,7 @@ interface ConfigState {
   notify_content: string
   openUpload: number
   uploadSize: number
+  storage_path: string
   uploadMinute: number
   max_save_seconds: number
   opacity: number
@@ -48,6 +49,7 @@ const config = ref<ConfigState>({
   robotsText: '',
   keywords: '',
   notify_title: '',
+  storage_path: '',
   notify_content: '',
   openUpload: 1,
   uploadSize: 1,
@@ -359,14 +361,33 @@ refreshData()
         </div>
 
         <!-- 存储设置 -->
-        <div class="mt-8">
+        <div class="space-y-4">
           <h3
             class="text-lg font-medium mb-4"
             :class="[isDarkMode ? 'text-white' : 'text-gray-800']"
           >
             存储设置
           </h3>
-
+        <!-- 通知设置 -->
+          <div class="space-y-2">
+            <label
+              class="block text-sm font-medium"
+              :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']"
+            >
+              存储路径
+            </label>
+            <input
+              type="text"
+              placeholder="留空则使用默认路径，可不填写"
+              v-model="config.storage_path"
+              class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+              :class="[
+                isDarkMode
+                  ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 hover:border-gray-500'
+                  : 'border-gray-300 hover:border-gray-400 placeholder-gray-500'
+              ]"
+            />
+          </div>  
           <div class="space-y-4">
             <div class="space-y-2">
               <label

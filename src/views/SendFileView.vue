@@ -20,7 +20,7 @@
           ]"
           @click="toRetrieve"
         >
-          FileCodeBox
+          {{config.name}}
         </h2>
         <form @submit.prevent="handleSubmit" class="space-y-8">
           <!-- 发送类型选择 -->
@@ -416,7 +416,6 @@ import { copyRetrieveLink, copyRetrieveCode } from '@/utils/clipboard'
 import { getStorageUnit } from '@/utils/convert'
 
 const config: any = JSON.parse(localStorage.getItem('config') || '{}')
-console.log(config)
 
 const router = useRouter()
 const isDarkMode = inject('isDarkMode')
@@ -457,7 +456,6 @@ const handleFileDrop = async (event: DragEvent) => {
   if (event.dataTransfer?.files && event.dataTransfer.files.length > 0) {
     selectedFile.value = event.dataTransfer.files[0]
     fileHash.value = await calculateFileHash(selectedFile.value)
-    startChunkUpload()
   }
 }
 

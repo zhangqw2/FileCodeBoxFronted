@@ -30,7 +30,7 @@
                 : 'text-indigo-600'
             ]"
           >
-            FileCodeBox
+            {{config.name}}
           </h2>
           <form @submit.prevent="handleSubmit">
             <div class="mb-6 relative">
@@ -388,6 +388,7 @@ const route = useRoute()
 
 // 使用 receiveData 替代原来的 records
 const records = receiveData
+const config = JSON.parse(localStorage.getItem('config') || '{}')
 
 onMounted(() => {
   const query_code = route.query.code
@@ -400,6 +401,8 @@ watch(code, (newVal) => {
     handleSubmit()
   }
 })
+
+
 
 const handleSubmit = async () => {
   if (code.value.length !== 5) {
