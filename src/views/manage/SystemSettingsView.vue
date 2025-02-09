@@ -37,12 +37,18 @@ interface ConfigState {
   errorCount: number
   s3_proxy: number
   themesSelect: string
+  webdav_url: string
+  webdav_username: string
+  webdav_password: string
 }
 
 const config = ref<ConfigState>({
   name: '',
   description: '',
   file_storage: '',
+  webdav_url: '',
+  webdav_username: '',
+  webdav_password: '',
   themesChoices: [],
   expireStyle: [],
   admin_token: '',
@@ -368,7 +374,7 @@ refreshData()
           >
             存储设置
           </h3>
-        <!-- 通知设置 -->
+          <!-- 通知设置 -->
           <div class="space-y-2">
             <label
               class="block text-sm font-medium"
@@ -387,7 +393,7 @@ refreshData()
                   : 'border-gray-300 hover:border-gray-400 placeholder-gray-500'
               ]"
             />
-          </div>  
+          </div>
           <div class="space-y-4">
             <div class="space-y-2">
               <label
@@ -410,9 +416,73 @@ refreshData()
               >
                 <option value="local">本地存储</option>
                 <option value="s3">S3 存储</option>
+                <option value="webdav">Webdav 存储</option>
               </select>
             </div>
 
+            <div v-if="config.file_storage === 'webdav'" class="space-y-4">
+              <!-- 通知设置 -->
+              <div class="space-y-2">
+                <label
+                  class="block text-sm font-medium"
+                  :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']"
+                >
+                  Webdav URL
+                </label>
+                <input
+                  type="text"
+                  placeholder="请输入 Webdav URL"
+                  v-model="config.webdav_url"
+                  class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                  :class="[
+                    isDarkMode
+                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 hover:border-gray-500'
+                      : 'border-gray-300 hover:border-gray-400 placeholder-gray-500'
+                  ]"
+                />
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-2">
+                  <label
+                    class="block text-sm font-medium"
+                    :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']"
+                  >
+                    Webdav Username
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="请输入 Webdav Username"
+                    v-model="config.webdav_username"
+                    class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                    :class="[
+                      isDarkMode
+                        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 hover:border-gray-500'
+                        : 'border-gray-300 hover:border-gray-400 placeholder-gray-500'
+                    ]"
+                  />
+                </div>
+
+                <div class="space-y-2">
+                  <label
+                    class="block text-sm font-medium"
+                    :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']"
+                  >
+                    Webdav Password
+                  </label>
+                  <input
+                    type="password"
+                    placeholder="请输入 Webdav Password"
+                    v-model="config.webdav_password"
+                    class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                    :class="[
+                      isDarkMode
+                        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 hover:border-gray-500'
+                        : 'border-gray-300 hover:border-gray-400 placeholder-gray-500'
+                    ]"
+                  />
+                </div>
+              </div>
+            </div>
             <!-- S3 配置 -->
             <div v-if="config.file_storage === 's3'" class="space-y-4">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
