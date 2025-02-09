@@ -110,10 +110,10 @@ const router = useRouter()
 
 const handleSubmit = async () => {
   if (!validateForm()) return
-  adminStore.updateAdminPwd(password.value)
   api
     .post('/admin/login', { password: password.value })
-    .then(() => {
+    .then((res: any) => {
+      adminStore.updateAdminPwd(res.detail.token)
       router.push('/admin')
     })
     .catch((error: any) => {
