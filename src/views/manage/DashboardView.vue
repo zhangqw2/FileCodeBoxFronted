@@ -6,27 +6,19 @@
 
     <!-- 统计卡片区域 -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-      <div
-        class="p-6 rounded-lg shadow-md transition-colors duration-300"
-        :class="[isDarkMode ? 'bg-gray-800 bg-opacity-70' : 'bg-white']"
-      >
+      <div class="p-6 rounded-lg shadow-md transition-colors duration-300"
+        :class="[isDarkMode ? 'bg-gray-800 bg-opacity-70' : 'bg-white']">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-600']">
               总文件数
             </p>
-            <h3
-              class="text-2xl font-bold mt-1"
-              :class="[isDarkMode ? 'text-white' : 'text-gray-800']"
-            >
+            <h3 class="text-2xl font-bold mt-1" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">
               {{ dashboardData.totalFiles }}
             </h3>
           </div>
           <div class="p-3 rounded-full" :class="[isDarkMode ? 'bg-indigo-900' : 'bg-indigo-100']">
-            <FileIcon
-              class="w-6 h-6"
-              :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']"
-            />
+            <FileIcon class="w-6 h-6" :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']" />
           </div>
         </div>
         <p class="text-sm mt-2" :class="[isDarkMode ? 'text-green-400' : 'text-green-600']">
@@ -37,27 +29,19 @@
         </p>
       </div>
 
-      <div
-        class="p-6 rounded-lg shadow-md transition-colors duration-300"
-        :class="[isDarkMode ? 'bg-gray-800 bg-opacity-70' : 'bg-white']"
-      >
+      <div class="p-6 rounded-lg shadow-md transition-colors duration-300"
+        :class="[isDarkMode ? 'bg-gray-800 bg-opacity-70' : 'bg-white']">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-600']">
               存储空间
             </p>
-            <h3
-              class="text-2xl font-bold mt-1"
-              :class="[isDarkMode ? 'text-white' : 'text-gray-800']"
-            >
+            <h3 class="text-2xl font-bold mt-1" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">
               {{ dashboardData.storageUsed }}
             </h3>
           </div>
           <div class="p-3 rounded-full" :class="[isDarkMode ? 'bg-purple-900' : 'bg-purple-100']">
-            <HardDriveIcon
-              class="w-6 h-6"
-              :class="[isDarkMode ? 'text-purple-400' : 'text-purple-600']"
-            />
+            <HardDriveIcon class="w-6 h-6" :class="[isDarkMode ? 'text-purple-400' : 'text-purple-600']" />
           </div>
         </div>
 
@@ -69,27 +53,19 @@
         </p>
       </div>
 
-      <div
-        class="p-6 rounded-lg shadow-md transition-colors duration-300"
-        :class="[isDarkMode ? 'bg-gray-800 bg-opacity-70' : 'bg-white']"
-      >
+      <div class="p-6 rounded-lg shadow-md transition-colors duration-300"
+        :class="[isDarkMode ? 'bg-gray-800 bg-opacity-70' : 'bg-white']">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-600']">
               活跃用户
             </p>
-            <h3
-              class="text-2xl font-bold mt-1"
-              :class="[isDarkMode ? 'text-white' : 'text-gray-800']"
-            >
+            <h3 class="text-2xl font-bold mt-1" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">
               25
             </h3>
           </div>
           <div class="p-3 rounded-full" :class="[isDarkMode ? 'bg-green-900' : 'bg-green-100']">
-            <UsersIcon
-              class="w-6 h-6"
-              :class="[isDarkMode ? 'text-green-400' : 'text-green-600']"
-            />
+            <UsersIcon class="w-6 h-6" :class="[isDarkMode ? 'text-green-400' : 'text-green-600']" />
           </div>
         </div>
         <p class="text-sm mt-2" :class="[isDarkMode ? 'text-red-400' : 'text-red-600']">
@@ -98,27 +74,19 @@
         </p>
       </div>
 
-      <div
-        class="p-6 rounded-lg shadow-md transition-colors duration-300"
-        :class="[isDarkMode ? 'bg-gray-800 bg-opacity-70' : 'bg-white']"
-      >
+      <div class="p-6 rounded-lg shadow-md transition-colors duration-300"
+        :class="[isDarkMode ? 'bg-gray-800 bg-opacity-70' : 'bg-white']">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-600']">
               系统状态
             </p>
-            <h3
-              class="text-2xl font-bold mt-1"
-              :class="[isDarkMode ? 'text-white' : 'text-gray-800']"
-            >
+            <h3 class="text-2xl font-bold mt-1" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">
               正常
             </h3>
           </div>
           <div class="p-3 rounded-full" :class="[isDarkMode ? 'bg-blue-900' : 'bg-blue-100']">
-            <ActivityIcon
-              class="w-6 h-6"
-              :class="[isDarkMode ? 'text-blue-400' : 'text-blue-600']"
-            />
+            <ActivityIcon class="w-6 h-6" :class="[isDarkMode ? 'text-blue-400' : 'text-blue-600']" />
           </div>
         </div>
         <p class="text-sm mt-2" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-600']">
@@ -128,10 +96,8 @@
     </div>
 
     <!-- 最近活动 -->
-    <div
-      class="rounded-lg shadow-md overflow-hidden transition-colors duration-300"
-      :class="[isDarkMode ? 'bg-gray-800 bg-opacity-70' : 'bg-white']"
-    >
+    <div class="rounded-lg shadow-md overflow-hidden transition-colors duration-300"
+      :class="[isDarkMode ? 'bg-gray-800 bg-opacity-70' : 'bg-white']">
       <div class="px-6 py-4 border-b" :class="[isDarkMode ? 'border-gray-700' : 'border-gray-200']">
         <h3 class="text-lg font-medium" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">
           最近活动
@@ -139,17 +105,10 @@
       </div>
       <div class="p-6">
         <div class="space-y-4">
-          <div
-            v-for="(activity, index) in recentActivities"
-            :key="index"
-            class="flex items-center space-x-4"
-          >
+          <div v-for="(activity, index) in recentActivities" :key="index" class="flex items-center space-x-4">
             <div class="flex-shrink-0">
-              <component
-                :is="activity.icon"
-                class="w-5 h-5"
-                :class="[isDarkMode ? 'text-gray-400' : 'text-gray-600']"
-              />
+              <component :is="activity.icon" class="w-5 h-5"
+                :class="[isDarkMode ? 'text-gray-400' : 'text-gray-600']" />
             </div>
             <div class="flex-1">
               <p :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']">

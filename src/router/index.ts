@@ -1,5 +1,7 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 
+// 预加载 SendFileView 组件
+const SendFileView = () => import('../views/SendFileView.vue')
 const router = createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),
   routes: [
@@ -11,7 +13,7 @@ const router = createRouter({
     {
       path: '/send',
       name: 'Send',
-      component: () => import('@/views/SendFileView.vue')
+      component: SendFileView
     },
     {
       path: '/admin',
@@ -39,12 +41,10 @@ const router = createRouter({
     {
       path: '/login',
       name: 'Login',
-      component: () => import('@/views/LoginView.vue')
+      component: () => import('@/views/manage/LoginView.vue')
     }
   ]
 })
 
-// 预加载 SendFileView 组件
-import('../views/SendFileView.vue')
 
 export default router
