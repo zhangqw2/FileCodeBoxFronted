@@ -72,6 +72,13 @@
                 </div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                  <span class="font-medium" :class="[isDarkMode ? 'text-white' : 'text-gray-900']">
+                    {{ file.uuid_file_name }}
+                  </span>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
                 <span :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']">
                   {{ Math.round((file.size / 1024 / 1024) * 100) / 100 }}MB
                 </span>
@@ -196,7 +203,7 @@ const isDarkMode = inject('isDarkMode')
 const tableData: any = ref([])
 
 // 修改文件表头
-const fileTableHeaders = ['取件码', '名称', '大小', '描述', '过期时间', '操作']
+const fileTableHeaders = ['取件码', '前缀','名称', '大小', '描述', '过期时间', '操作']
 
 // 分页参数
 const params = ref({
