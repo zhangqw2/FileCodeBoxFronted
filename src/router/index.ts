@@ -1,3 +1,7 @@
+/*
+ * @author: zhangquanwei
+ * @Date: 2025-02-17 09:43:26
+ */
 import { createRouter, createWebHashHistory } from 'vue-router'
 
 // 预加载 SendFileView 组件
@@ -35,6 +39,11 @@ const router = createRouter({
           path: '/admin/settings',
           name: 'Settings',
           component: () => import('@/views/manage/SystemSettingsView.vue')
+        },
+        {
+          path: '/admin/local',
+          name: 'Locals',
+          component: () => import('@/views/manage/LocalView.vue'),
         }
       ]
     },

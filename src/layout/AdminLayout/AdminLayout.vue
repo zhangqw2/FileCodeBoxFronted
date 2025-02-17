@@ -108,7 +108,8 @@ const isDarkMode = inject('isDarkMode')
 const menuItems: MenuItem[] = [
   { id: 'Dashboard', name: '仪表盘', icon: LayoutDashboardIcon, redirect: '/admin/dashboard' },
   { id: 'FileManage', name: '文件管理', icon: FolderIcon, redirect: '/admin/files' },
-  { id: 'Settings', name: '系统设置', icon: CogIcon, redirect: '/admin/settings' }
+  { id: 'Settings', name: '系统设置', icon: CogIcon, redirect: '/admin/settings' },
+  { id: 'Locals', name: '本地文件', icon: FolderIcon, redirect: '/admin/local' }
 ]
 
 const isSidebarOpen = ref(true)
