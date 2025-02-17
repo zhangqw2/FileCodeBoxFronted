@@ -379,7 +379,6 @@ const getQRCodeValue = (record) => {
 
 const downloadRecord = (record) => {
   console.log(record);
-
   if (record.downloadUrl) {
     // 如果是文件,直接下载
     window.open(`${record.downloadUrl.startsWith('http') ? '' : baseUrl}${record.downloadUrl}`, '_blank')

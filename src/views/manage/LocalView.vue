@@ -40,7 +40,7 @@
           class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 transition-colors duration-300"
         >
           <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-medium dark:text-white">{{ file.file }}</h3>
+            <h3 class="text-lg font-medium dark:text-white">{{ file.fileName }}</h3>
             <span class="text-sm dark:text-gray-400">{{ file.ctime }}</span>
           </div>
           <div class="mb-4">
@@ -88,7 +88,7 @@
           <button
             v-for="page in displayedPages"
             :key="page"
-            @click="handlePageChange(page)"
+            @click="handlePageChange(Number(page))"
             :class="[
               'px-3 py-1 rounded-md transition-colors duration-200',
               currentPage === page
@@ -125,6 +125,10 @@
           <h3 class="text-lg font-medium mb-4 dark:text-white">分享文件</h3>
           <div class="mb-4">
             <label class="block text-sm font-medium mb-1 dark:text-gray-300">文件名</label>
+            <input type="text" v-model="form.fileName" readonly class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+          </div>
+          <div class="mb-4">
+            <label class="block text-sm font-medium mb-1 dark:text-gray-300">相对路径</label>
             <input type="text" v-model="form.name" readonly class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
           </div>
           <div class="mb-4">
@@ -159,10 +163,10 @@
   const localFiles: any = ref([])
   const dialogFormVisible = ref(false)
   const form = reactive({
-    name: '',
+    name: '', // 相对路径
     expireStyle: 'day',
     expireValue: 1,
-    relativePath: '' // 新增字段
+    fileName: ''
   })
   const searchKeyword = ref('')
   const alertStore = useAlertStore()
@@ -200,7 +204,7 @@
   
   const shareLocalFile = (file: any) => {
     form.name = file.file
-    form.relativePath = file.relative_path // 添加相对位置传参
+    form.fileName = file.fileName
     dialogFormVisible.value = true
   }
   
@@ -211,9 +215,9 @@
         method: 'post',
         data: {
           filename: form.name,
+          fileName: form.fileName,
           expire_style: form.expireStyle,
-          expire_value: form.expireValue,
-          relative_path: form.relativePath // 传递相对位置
+          expire_value: form.expireValue
         }
       })
       dialogFormVisible.value = false
@@ -324,4 +328,3 @@
     color: #a0a0b2;
   }
   </style>
-  
