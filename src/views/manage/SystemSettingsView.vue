@@ -21,6 +21,7 @@ interface ConfigState {
   uploadMinute: number
   max_save_seconds: number
   opacity: number
+  enableChunk: number
   s3_access_key_id: string
   background: string
   showAdminAddr: number
@@ -59,6 +60,7 @@ const config = ref<ConfigState>({
   notify_content: '',
   openUpload: 1,
   uploadSize: 1,
+  enableChunk: 0,
   uploadMinute: 1,
   max_save_seconds: 0,
   opacity: 0.9,
@@ -330,6 +332,7 @@ refreshData()
                   : 'border-gray-300 hover:border-gray-400 placeholder-gray-500'
               ]" />
           </div>
+
           <div class="space-y-4">
             <div class="space-y-2">
               <label class="block text-sm font-medium" :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']">
@@ -349,7 +352,27 @@ refreshData()
                 <option value="webdav">Webdav 存储</option>
               </select>
             </div>
-
+            <div class="space-y-2" v-if="config.file_storage === 'local'">
+              <label class="block text-sm font-medium mb-2" :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']">
+                开启切片上传（实验性功能，还在开发中，目前仅本地存储可用，可能会出现未知问题）
+              </label>
+              <div class="flex items-center">
+                <button type="button" @click="config.enableChunk = config.enableChunk === 1 ? 0 : 1"
+                  class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                  :class="[config.enableChunk === 1 ? 'bg-indigo-600' : 'bg-gray-200']" role="switch"
+                  :aria-checked="config.enableChunk === 1">
+                  <span
+                    class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+                    :class="[
+                      config.enableChunk === 1 ? 'translate-x-5' : 'translate-x-0',
+                      isDarkMode && config.enableChunk !== 1 ? 'bg-gray-100' : 'bg-white'
+                    ]" />
+                </button>
+                <span class="ml-3 text-sm" :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']">
+                  {{ config.enableChunk === 1 ? '已开启' : '已关闭' }}
+                </span>
+              </div>
+            </div>
             <div v-if="config.file_storage === 'webdav'" class="space-y-4">
               <!-- 通知设置 -->
               <div class="space-y-2">
