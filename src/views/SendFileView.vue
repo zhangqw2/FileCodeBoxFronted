@@ -645,7 +645,11 @@ const handleSubmit = async () => {
       formData.append('text', textContent.value)
       formData.append('expire_value', expirationValue.value)
       formData.append('expire_style', expirationMethod.value)
-      response = await api.post('/share/text/', formData)
+      response = await api.post('/share/text/', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      })
     }
 
     if (response && response.code === 200) {
