@@ -341,16 +341,8 @@ const handleFileUpload = async (event: Event) => {
   const target = event.target as HTMLInputElement
   if (target.files && target.files.length > 0) {
     const file = target.files[0]
-    if (!config.openUpload && localStorage.getItem('token') === null) {
-      alertStore.showAlert('游客上传功能已关闭', 'error')
-      return
-    }
-    if (file.size > config.uploadSize) {
-      alertStore.showAlert(`文件大小超过限制 (${getStorageUnit(config.uploadSize)})`, 'error')
-      return
-    }
-
     selectedFile.value = file
+    if (!checkUpload()) return
     fileHash.value = await calculateFileHash(file)
     console.log(fileHash.value)
   }
@@ -359,16 +351,8 @@ const handleFileUpload = async (event: Event) => {
 const handleFileDrop = async (event: DragEvent) => {
   if (event.dataTransfer?.files && event.dataTransfer.files.length > 0) {
     const file = event.dataTransfer.files[0]
-    if (!config.openUpload && localStorage.getItem('token') === null) {
-      alertStore.showAlert('游客上传功能已关闭', 'error')
-      return
-    }
-    if (file.size > config.uploadSize) {
-      alertStore.showAlert(`文件大小超过限制 (${getStorageUnit(config.uploadSize)})`, 'error')
-      return
-    }
-
     selectedFile.value = file
+    if (!checkUpload()) return
     fileHash.value = await calculateFileHash(file)
   }
 }
@@ -376,21 +360,12 @@ const handleFileDrop = async (event: DragEvent) => {
 const handlePaste = async (event: ClipboardEvent) => {
   const items = event.clipboardData?.items
   if (!items) return
-  if (config.openUpload===0 && localStorage.getItem('token') === null) {
-    alertStore.showAlert('游客上传功能已关闭', 'error')
-    return
-  }
-
   for (const item of items) {
     if (item.kind === 'file') {
       const file = item.getAsFile()
       if (file) {
-        if (file.size > config.uploadSize) {
-          alertStore.showAlert(`文件大小超过限制 (${getStorageUnit(config.uploadSize)})`, 'error')
-          return
-        }
-
         selectedFile.value = file
+        if (!checkUpload()) return
         fileHash.value = await calculateFileHash(file)
         alertStore.showAlert('已从剪贴板添加文件：' + file.name, 'success')
         break
@@ -556,7 +531,53 @@ const handleDefaultFileUpload = async (file: File) => {
   const response: any = await api.post('/share/file/', formData, config)
   return response
 }
+const checkOpenUpload = () => {
+  if (config.openUpload === 0 && localStorage.getItem('token') === null) {
+    alertStore.showAlert('游客上传功能已关闭', 'error')
+    return false
+  }
+  return true
+}
 
+const checkFileSize = (file: File) => {
+  if (file.size > config.uploadSize) {
+    alertStore.showAlert(`文件大小超过限制 (${getStorageUnit(config.uploadSize)})`, 'error')
+    selectedFile.value = null
+    return false
+  }
+  return true
+}
+
+const checkExpirationTime = (method: string, value: string): boolean => {
+  if (method === 'forever' || method === 'count') return true
+
+  const maxSaveSeconds = config.max_save_seconds || 0
+  if (maxSaveSeconds === 0) return true // 如果没有限制，直接返回true
+
+  let totalSeconds = 0
+  switch (method) {
+    case 'minute':
+      totalSeconds = parseInt(value) * 60
+      break
+    case 'hour':
+      totalSeconds = parseInt(value) * 3600
+      break
+    case 'day':
+      totalSeconds = parseInt(value) * 86400
+      break
+    default:
+      return false
+  }
+
+  return totalSeconds <= maxSaveSeconds
+}
+
+const checkUpload = () => {
+  if (!checkOpenUpload()) return false
+  if (!checkFileSize(selectedFile.value!)) return false
+  if (!checkExpirationTime(expirationMethod.value, expirationValue.value)) return false
+  return true
+}
 const handleSubmit = async () => {
   if (sendType.value === 'file' && !selectedFile.value) {
     alertStore.showAlert('请选择要上传的文件', 'error')
@@ -568,6 +589,13 @@ const handleSubmit = async () => {
   }
   if (expirationMethod.value !== 'forever' && !expirationValue.value) {
     alertStore.showAlert('请输入过期值', 'error')
+    return
+  }
+
+  // 添加过期时间验证
+  if (!checkExpirationTime(expirationMethod.value, expirationValue.value)) {
+    const maxDays = Math.floor(config.max_save_seconds / 86400)
+    alertStore.showAlert(`过期时间不能超过${maxDays}天`, 'error')
     return
   }
 
