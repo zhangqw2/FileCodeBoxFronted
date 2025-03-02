@@ -1,6 +1,7 @@
 <template>
   <div
     class="min-h-screen flex items-center justify-center p-4 overflow-hidden transition-colors duration-300"
+    @paste.prevent="handlePaste"
   >
     <div
       class="rounded-3xl shadow-2xl overflow-hidden border w-full max-w-md transition-colors duration-300"
@@ -453,6 +454,23 @@ const handleFileDrop = async (event: DragEvent) => {
   if (event.dataTransfer?.files && event.dataTransfer.files.length > 0) {
     selectedFile.value = event.dataTransfer.files[0]
     fileHash.value = await calculateFileHash(selectedFile.value)
+  }
+}
+
+const handlePaste = async (event: ClipboardEvent) => {
+  const items = event.clipboardData?.items
+  if (!items) return
+
+  for (const item of items) {
+    if (item.kind === 'file') {
+      const file = item.getAsFile()
+      if (file) {
+        selectedFile.value = file
+        fileHash.value = await calculateFileHash(file)
+        alertStore.showAlert('已从剪贴板添加文件：' + file.name, 'success')
+        break
+      }
+    }
   }
 }
 
