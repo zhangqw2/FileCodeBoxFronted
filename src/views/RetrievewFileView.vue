@@ -440,10 +440,10 @@ const handleSubmit = async () => {
           fileStore.addReceiveData(newFileData)
         }
         if (isFile) {
-          showDrawer.value = true
-        } else {
-          showPreview.value = true
           selectedRecord.value = newFileData
+        } else {
+          selectedRecord.value = newFileData
+          showPreview.value = true
         }
         alertStore.showAlert('文件获取成功', 'success')
       } else {

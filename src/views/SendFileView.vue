@@ -46,6 +46,16 @@
             >
               发送文本
             </button>
+            <!-- <button
+              type="button"
+              @click="sendType = 'collect'"
+              :class="[
+                'px-4 py-2 rounded-lg',
+                sendType === 'collect' ? 'bg-indigo-600 text-white' : 'bg-gray-700 text-gray-300'
+              ]"
+            >
+              收集文件
+            </button> -->
           </div>
 
           <transition name="fade" mode="out-in">
