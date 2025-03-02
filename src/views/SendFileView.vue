@@ -1,6 +1,5 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center p-4 overflow-hidden transition-colors duration-300"
-    @paste.prevent="handlePaste">
+  <div class="min-h-screen flex items-center justify-center p-4 overflow-hidden transition-colors duration-300">
     <div class="rounded-3xl shadow-2xl overflow-hidden border w-full max-w-md transition-colors duration-300" :class="[
       isDarkMode
         ? 'bg-white bg-opacity-10 backdrop-filter backdrop-blur-xl border-gray-700'
@@ -42,7 +41,7 @@
           </div>
 
           <transition name="fade" mode="out-in">
-            <div v-if="sendType === 'file'" key="file" class="grid grid-cols-1 gap-8">
+            <div v-if="sendType === 'file'" key="file" class="grid grid-cols-1 gap-8" @paste.prevent="handlePaste">
               <!-- 文件上传区域 -->
               <div
                 class="rounded-xl p-8 flex flex-col items-center justify-center border-2 border-dashed transition-all duration-300 group cursor-pointer relative"
