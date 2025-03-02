@@ -1,38 +1,42 @@
 <template>
   <div class="p-6 h-screen overflow-y-auto custom-scrollbar">
-    <h2 class="text-2xl font-bold mb-6" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">
-      文件管理
-    </h2>
+    <!-- 页面标题和统计信息 -->
+    <div class="mb-8">
+      <h2 class="text-2xl font-bold mb-4" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">
+        文件管理
+      </h2>
+    </div>
 
-    <!-- 添加文件操作栏 -->
-    <div class="mb-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-      <!-- 搜索和过滤 -->
-      <div class="flex flex-1 gap-4">
+    <!-- 搜索和操作栏 -->
+    <div class="mb-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between bg-opacity-70 p-4 rounded-lg shadow-sm"
+      :class="[isDarkMode ? 'bg-gray-800' : 'bg-white']">
+      <div class="flex flex-1 gap-4 w-full sm:w-auto">
         <div class="relative flex-1">
-          <input type="text" v-model="params.keyword" :class="[
-            isDarkMode
-              ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-              : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400'
-          ]"
-            class="w-full pl-10 pr-4 py-2 rounded-lg border focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-            placeholder="搜索文件..." />
-          <SearchIcon class="absolute left-3 top-2.5 w-5 h-5"
-            :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']" />
+          <input 
+            type="text" 
+            v-model="params.keyword" 
+            @keyup.enter="handleSearch"
+            :class="[
+              isDarkMode
+                ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+                : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400',
+              'w-full pl-10 pr-4 py-2.5 rounded-lg border focus:ring-2 focus:ring-indigo-500 focus:border-transparent'
+            ]"
+            placeholder="搜索文件名称、描述..." 
+          />
+          <SearchIcon class="absolute left-3 top-3 w-5 h-5" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']" />
         </div>
-      </div>
-
-      <!-- 搜索按钮 -->
-      <div class="flex gap-4">
-        <button @click="handleSearch"
-          class="flex items-center px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors duration-200">
+        <button 
+          @click="handleSearch"
+          class="px-4 py-2.5 rounded-lg inline-flex items-center transition-all duration-200 bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm">
           <SearchIcon class="w-5 h-5 mr-2" />
           搜索
         </button>
       </div>
     </div>
 
-    <!-- File List -->
-    <div class="rounded-lg shadow-md overflow-hidden transition-colors duration-300"
+    <!-- 文件列表 -->
+    <div class="rounded-lg shadow-sm overflow-hidden transition-all duration-300"
       :class="[isDarkMode ? 'bg-gray-800 bg-opacity-70' : 'bg-white']">
       <div class="px-6 py-4 border-b" :class="[isDarkMode ? 'border-gray-700' : 'border-gray-200']">
         <h3 class="text-lg font-medium" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">
@@ -41,10 +45,10 @@
       </div>
       <div class="overflow-x-auto">
         <table class="min-w-full divide-y" :class="[isDarkMode ? 'divide-gray-700' : 'divide-gray-200']">
-          <thead :class="[isDarkMode ? 'bg-gray-900' : 'bg-gray-100']">
+          <thead :class="[isDarkMode ? 'bg-gray-900/50' : 'bg-gray-50']">
             <tr>
               <th v-for="header in fileTableHeaders" :key="header"
-                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+                class="px-6 py-3.5 text-left text-xs font-medium uppercase tracking-wider"
                 :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']">
                 {{ header }}
               </th>
@@ -52,58 +56,73 @@
           </thead>
           <tbody :class="[
             isDarkMode
-              ? 'bg-gray-800 divide-y divide-gray-700'
+              ? 'bg-gray-800/50 divide-y divide-gray-700'
               : 'bg-white divide-y divide-gray-200'
           ]">
-            <tr v-for="file in tableData" :key="file.id">
+            <tr v-for="file in tableData" :key="file.id" 
+              class="hover:bg-opacity-50 transition-colors duration-200"
+              :class="[isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50']">
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="flex items-center">
-                  <span class="font-medium" :class="[isDarkMode ? 'text-white' : 'text-gray-900']">
+                  <span class="font-medium select-all" :class="[isDarkMode ? 'text-white' : 'text-gray-900']">
                     {{ file.code }}
                   </span>
                 </div>
               </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <div class="flex items-center">
-                  <FileIcon class="w-5 h-5 mr-2" :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-500']" />
-                  <span class="font-medium" :class="[isDarkMode ? 'text-white' : 'text-gray-900']">
+              <td class="px-6 py-4">
+                <div class="flex items-center group relative">
+                  <FileIcon class="w-5 h-5 mr-2 flex-shrink-0" :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-500']" />
+                  <span class="font-medium truncate max-w-[200px]" :class="[isDarkMode ? 'text-white' : 'text-gray-900']"
+                    :title="file.prefix">
                     {{ file.prefix }}
                   </span>
+                  <!-- 悬浮提示 -->
+                  <div class="absolute left-0 -top-2 -translate-y-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+                    <div class="bg-gray-900 text-white text-sm rounded px-2 py-1 max-w-xs break-all">
+                      {{ file.prefix }}
+                    </div>
+                  </div>
                 </div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <span :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                  :class="[isDarkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-800']">
                   {{ Math.round((file.size / 1024 / 1024) * 100) / 100 }}MB
                 </span>
               </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <span :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']">
-                  {{ file.text }}
-                </span>
+              <td class="px-6 py-4">
+                <div class="group relative">
+                  <span class="block truncate max-w-[250px]" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']">
+                    {{ file.text }}
+                  </span>
+                  <!-- 悬浮提示 -->
+                  <div class="absolute left-0 -top-2 -translate-y-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10">
+                    <div class="bg-gray-900 text-white text-sm rounded px-2 py-1 max-w-xs break-all">
+                      {{ file.text }}
+                    </div>
+                  </div>
+                </div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <span :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                  :class="[
+                    file.expired_at 
+                      ? (isDarkMode ? 'bg-yellow-900/30 text-yellow-400' : 'bg-yellow-100 text-yellow-800')
+                      : (isDarkMode ? 'bg-green-900/30 text-green-400' : 'bg-green-100 text-green-800')
+                  ]">
                   {{ file.expired_at ? formatTimestamp(file.expired_at) : '永久' }}
                 </span>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                <!-- <button
-                  v-if="file.file_path"
-                  @click="downloadFile(file.id)"
-                  class="mr-3 transition-colors duration-200"
+                <button 
+                  @click="deleteFile(file.id)" 
+                  class="inline-flex items-center px-3 py-1.5 rounded-md transition-colors duration-200"
                   :class="[
                     isDarkMode
-                      ? 'text-indigo-400 hover:text-indigo-300'
-                      : 'text-indigo-600 hover:text-indigo-900'
-                  ]"
-                >
-                  下载
-                </button> -->
-                <button @click="deleteFile(file.id)" class="transition-colors duration-200" :class="[
-                  isDarkMode
-                    ? 'text-red-400 hover:text-red-300'
-                    : 'text-red-600 hover:text-red-900'
-                ]">
+                      ? 'bg-red-900/20 text-red-400 hover:bg-red-900/30'
+                      : 'bg-red-50 text-red-600 hover:bg-red-100'
+                  ]">
+                  <TrashIcon class="w-4 h-4 mr-1.5" />
                   删除
                 </button>
               </td>
@@ -111,65 +130,74 @@
           </tbody>
         </table>
       </div>
-    </div>
 
-    <!-- 在文件列表表格下方添加分页组件 -->
-    <div class="mt-4 flex items-center justify-between px-6 py-3 border-t"
-      :class="[isDarkMode ? 'border-gray-700' : 'border-gray-200']">
-      <!-- 分页信息 -->
-      <div class="flex items-center text-sm" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']">
-        显示第 {{ (params.page - 1) * params.size + 1 }} 到
-        {{ Math.min(params.page * params.size, params.total) }} 条，共 {{ params.total }} 条
-      </div>
-
-      <!-- 分页控制器 -->
-      <div class="flex items-center space-x-2">
-        <!-- 上一页 -->
-        <button @click="handlePageChange(params.page - 1)" :disabled="params.page === 1"
-          class="px-3 py-1 rounded-md transition-colors duration-200" :class="[
-            isDarkMode
-              ? params.page === 1
-                ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
-                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-              : params.page === 1
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-          ]">
-          上一页
-        </button>
-
-        <!-- 页码 -->
-        <div class="flex items-center space-x-1">
-          <template v-for="pageNum in displayedPages" :key="pageNum">
-            <button v-if="pageNum !== '...'" @click="handlePageChange(pageNum)"
-              class="px-3 py-1 rounded-md transition-colors duration-200" :class="[
-                params.page === pageNum
-                  ? 'bg-indigo-600 text-white'
-                  : isDarkMode
-                    ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              ]">
-              {{ pageNum }}
-            </button>
-            <span v-else class="px-2" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']">
-              ...
-            </span>
-          </template>
+      <!-- 分页控件 -->
+      <div class="mt-4 flex items-center justify-between px-6 py-4 border-t"
+        :class="[isDarkMode ? 'border-gray-700' : 'border-gray-200']">
+        <div class="flex items-center text-sm" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']">
+          显示第 {{ (params.page - 1) * params.size + 1 }} 到
+          {{ Math.min(params.page * params.size, params.total) }} 条，共 {{ params.total }} 条
         </div>
 
-        <!-- 下一页 -->
-        <button @click="handlePageChange(params.page + 1)" :disabled="params.page >= totalPages"
-          class="px-3 py-1 rounded-md transition-colors duration-200" :class="[
-            isDarkMode
-              ? params.page >= totalPages
-                ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
-                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-              : params.page >= totalPages
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-          ]">
-          下一页
-        </button>
+        <div class="flex items-center space-x-2">
+          <button 
+            @click="handlePageChange(params.page - 1)" 
+            :disabled="params.page === 1"
+            class="inline-flex items-center px-3 py-1.5 rounded-md transition-colors duration-200" 
+            :class="[
+              isDarkMode
+                ? params.page === 1
+                  ? 'bg-gray-800 text-gray-600 cursor-not-allowed'
+                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                : params.page === 1
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            ]">
+            <ChevronLeftIcon class="w-4 h-4" />
+            上一页
+          </button>
+
+          <div class="flex items-center space-x-1">
+            <template v-for="pageNum in displayedPages" :key="pageNum">
+              <button 
+                v-if="pageNum !== '...'" 
+                @click="handlePageChange(pageNum)"
+                class="inline-flex items-center px-3 py-1.5 rounded-md transition-colors duration-200" 
+                :class="[
+                  params.page === pageNum
+                    ? 'bg-indigo-600 text-white'
+                    : isDarkMode
+                      ? 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                ]">
+                {{ pageNum }}
+              </button>
+              <span
+                v-else 
+                class="px-2" 
+                :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']">
+                ...
+              </span>
+            </template>
+          </div>
+
+          <button 
+            @click="handlePageChange(params.page + 1)" 
+            :disabled="params.page >= totalPages"
+            class="inline-flex items-center px-3 py-1.5 rounded-md transition-colors duration-200" 
+            :class="[
+              isDarkMode
+                ? params.page >= totalPages
+                  ? 'bg-gray-800 text-gray-600 cursor-not-allowed'
+                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                : params.page >= totalPages
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            ]">
+            下一页
+            <ChevronRightIcon class="w-4 h-4" />
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -178,9 +206,15 @@
 <script setup lang="ts">
 import { inject, ref, computed } from 'vue'
 import api from '@/utils/api'
-import { FileIcon, SearchIcon } from 'lucide-vue-next'
-import { useAlertStore } from '@/stores/alertStore'
-const alertStore = useAlertStore()
+import { 
+  FileIcon, 
+  SearchIcon, 
+  TrashIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  UploadIcon,
+  HardDriveIcon
+} from 'lucide-vue-next'
 function formatTimestamp(timestamp: string): string {
   const date = new Date(timestamp)
   const year = date.getFullYear()
@@ -280,7 +314,6 @@ const loadFiles = async () => {
     })
     tableData.value = res.detail.data
     params.value.total = res.detail.total
-    alertStore.showAlert('加载成功', 'success')
   } catch (error) {
     console.error('加载文件列表失败:', error)
   }

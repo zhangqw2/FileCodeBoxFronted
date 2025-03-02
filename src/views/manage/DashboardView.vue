@@ -95,33 +95,6 @@
       </div>
     </div>
 
-    <!-- 最近活动 -->
-    <div class="rounded-lg shadow-md overflow-hidden transition-colors duration-300"
-      :class="[isDarkMode ? 'bg-gray-800 bg-opacity-70' : 'bg-white']">
-      <div class="px-6 py-4 border-b" :class="[isDarkMode ? 'border-gray-700' : 'border-gray-200']">
-        <h3 class="text-lg font-medium" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">
-          最近活动
-        </h3>
-      </div>
-      <div class="p-6">
-        <div class="space-y-4">
-          <div v-for="(activity, index) in recentActivities" :key="index" class="flex items-center space-x-4">
-            <div class="flex-shrink-0">
-              <component :is="activity.icon" class="w-5 h-5"
-                :class="[isDarkMode ? 'text-gray-400' : 'text-gray-600']" />
-            </div>
-            <div class="flex-1">
-              <p :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']">
-                {{ activity.description }}
-              </p>
-              <p class="text-sm" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']">
-                {{ activity.time }}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
