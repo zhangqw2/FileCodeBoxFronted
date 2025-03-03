@@ -95,6 +95,15 @@
       </div>
     </div>
 
+    <!-- 添加版本和版权信息 -->
+    <div class="mt-auto text-center py-4" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-600']">
+      <p class="text-sm">
+        版本 v2.0.3 更新时间：2025-03-03
+      </p>
+      <p class="text-sm mt-1">
+        © {{ new Date().getFullYear() }} <a href="https://github.com/vastsa/FileCodeBox">FileCodeBox</a>
+      </p>
+    </div>
   </div>
 </template>
 
