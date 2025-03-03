@@ -330,14 +330,11 @@ import {
   XIcon,
   TrashIcon,
   FileIcon,
-  CalendarIcon,
-  HardDriveIcon,
   ClockIcon,
   EyeIcon,
   ShieldCheckIcon,
   ClipboardCopyIcon,
   TerminalIcon,
-  QrCodeIcon
 } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import BorderProgressBar from '@/components/common/BorderProgressBar.vue'
@@ -685,10 +682,8 @@ const handleSubmit = async () => {
       textContent.value = ''
       expirationValue.value = ''
       uploadProgress.value = 0
-
-      // 自动打开抽屉
-      showDrawer.value = true
-
+      // 显示详情
+      selectedRecord.value = newRecord
       // 自动复制取件码链接
       await copyRetrieveLink(retrieveCode)
     } else {
