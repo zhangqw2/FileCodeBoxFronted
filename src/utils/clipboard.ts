@@ -79,3 +79,11 @@ export const copyRetrieveCode = async (code: string): Promise<boolean> => {
     errorMsg: '复制失败，请手动复制取件码'
   })
 }
+
+export const copyWgetCommand = async (code: string): Promise<boolean> => {
+  const command = `wget ${window.location.origin}/share/select?code=${code}`
+  return copyToClipboard(command, {
+    successMsg: 'wget命令已复制到剪贴板',
+    errorMsg: '复制失败，请手动复制wget命令'
+  })
+}

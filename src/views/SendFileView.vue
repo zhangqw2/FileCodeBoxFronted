@@ -214,72 +214,107 @@
 
     <!-- 记录详情弹窗 -->
     <transition name="fade">
-      <div v-if="selectedRecord" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div v-if="selectedRecord" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4 overflow-y-auto">
         <div
-          class="p-8 rounded-2xl max-w-md w-full mx-4 shadow-2xl transform transition-all duration-300 ease-out backdrop-filter backdrop-blur-lg bg-opacity-70"
-          :class="[isDarkMode ? 'bg-gray-800' : 'bg-white']">
-          <h3 class="text-2xl font-bold mb-6" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">
-            文件详情
-          </h3>
-          <div class="space-y-4">
-            <div class="flex items-center">
-              <FileIcon class="w-6 h-6 mr-3" :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']" />
-              <p :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']">
-                <span class="font-medium">文件名：</span>{{ selectedRecord.filename }}
-              </p>
-            </div>
-            <div class="flex items-center">
-              <CalendarIcon class="w-6 h-6 mr-3" :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']" />
-              <p :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']">
-                <span class="font-medium">发送日期：</span>{{ selectedRecord.date }}
-              </p>
-            </div>
-            <div class="flex items-center">
-              <HardDriveIcon class="w-6 h-6 mr-3" :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']" />
-              <p :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']">
-                <span class="font-medium">文件大小：</span>{{ selectedRecord.size }}
-              </p>
-            </div>
-            <div class="flex items-center">
-              <ClockIcon class="w-6 h-6 mr-3" :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']" />
-              <p :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']">
-                <span class="font-medium">过期时间：</span>{{ selectedRecord.expiration }}
-              </p>
+          class="w-full max-w-2xl rounded-2xl shadow-2xl transform transition-all duration-300 ease-out overflow-hidden"
+          :class="[isDarkMode ? 'bg-gray-900' : 'bg-white']">
+          <!-- 顶部标题栏 -->
+          <div class="px-4 sm:px-6 py-3 sm:py-4 border-b" :class="[isDarkMode ? 'border-gray-800' : 'border-gray-100']">
+            <div class="flex items-center justify-between">
+              <h3 class="text-lg sm:text-xl font-semibold" :class="[isDarkMode ? 'text-white' : 'text-gray-900']">
+                文件详情
+              </h3>
+              <button @click="selectedRecord = null" 
+                class="p-1.5 sm:p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                <XIcon class="w-4 h-4 sm:w-5 sm:h-5" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']" />
+              </button>
             </div>
           </div>
 
-          <!-- 取件码和二维码部分 -->
-          <div class="mt-6 flex justify-between items-center">
-            <div class="flex flex-col items-center w-1/2 pr-2">
-              <h4 class="text-lg font-semibold mb-3" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">
-                取件码
-              </h4>
-              <div
-                class="bg-gray-100 p-3 rounded-lg shadow-md cursor-pointer hover:bg-gray-200 transition-colors duration-300 w-full text-center"
-                @click="copyRetrieveCode(selectedRecord.retrieveCode)">
-                <p class="text-2xl font-bold text-indigo-600">{{ selectedRecord.retrieveCode }}</p>
+          <!-- 主要内容区域 -->
+          <div class="p-4 sm:p-6">
+            <!-- 文件信息卡片 -->
+            <div class="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-3 sm:p-4 mb-4 sm:mb-6">
+              <div class="flex items-center mb-3 sm:mb-4">
+                <div class="p-2 sm:p-3 rounded-lg" :class="[isDarkMode ? 'bg-gray-800' : 'bg-white']">
+                  <FileIcon class="w-5 h-5 sm:w-6 sm:h-6" :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']" />
+                </div>
+                <div class="ml-3 sm:ml-4">
+                  <h4 class="font-medium text-sm sm:text-base" :class="[isDarkMode ? 'text-white' : 'text-gray-900']">
+                    {{ selectedRecord.filename }}
+                  </h4>
+                  <p class="text-xs sm:text-sm" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']">
+                    {{ selectedRecord.size }} · {{ selectedRecord.date }}
+                  </p>
+                </div>
               </div>
-              <p class="mt-2 text-sm" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-600']">
-                点击复制取件码
-              </p>
+              <div class="grid grid-cols-2 gap-3 sm:gap-4">
+                <div class="flex items-center">
+                  <ClockIcon class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']" />
+                  <span class="text-xs sm:text-sm" :class="[isDarkMode ? 'text-gray-300' : 'text-gray-600']">
+                    {{ selectedRecord.expiration }}
+                  </span>
+                </div>
+                <div class="flex items-center">
+                  <ShieldCheckIcon class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']" />
+                  <span class="text-xs sm:text-sm" :class="[isDarkMode ? 'text-gray-300' : 'text-gray-600']">
+                    安全加密
+                  </span>
+                </div>
+              </div>
             </div>
-            <div class="flex flex-col items-center w-1/2 pl-2">
-              <h4 class="text-lg font-semibold mb-3" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">
-                二维码
-              </h4>
-              <div class="bg-white p-2 rounded-lg shadow-md">
-                <QRCode :value="getQRCodeValue(selectedRecord)" :size="128" level="M" />
+
+            <!-- 取件码和二维码区域 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+              <!-- 左侧取件码 -->
+              <div class="space-y-3 sm:space-y-4">
+                <div class="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl p-4 sm:p-5 text-white">
+                  <div class="flex items-center justify-between mb-3 sm:mb-4">
+                    <h4 class="font-medium text-sm sm:text-base">取件码</h4>
+                    <button @click="copyRetrieveCode(selectedRecord.retrieveCode)"
+                      class="p-1.5 sm:p-2 rounded-full hover:bg-white/10 transition-colors">
+                      <ClipboardCopyIcon class="w-4 h-4 sm:w-5 sm:h-5" />
+                    </button>
+                  </div>
+                  <p class="text-2xl sm:text-3xl font-bold tracking-wider text-center">{{ selectedRecord.retrieveCode }}</p>
+                </div>
+
+                <div class="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-3 sm:p-4">
+                  <div class="flex items-center justify-between mb-2 sm:mb-3">
+                    <h4 class="font-medium text-sm sm:text-base flex items-center" :class="[isDarkMode ? 'text-white' : 'text-gray-900']">
+                      <TerminalIcon class="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2 text-indigo-500" />
+                      wget下载
+                    </h4>
+                    <button @click="copyWgetCommand(selectedRecord.retrieveCode)"
+                      class="p-1.5 sm:p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                      <ClipboardCopyIcon class="w-4 h-4 sm:w-5 sm:h-5" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']" />
+                    </button>
+                  </div>
+                  <p class="text-xs sm:text-sm font-mono break-all" :class="[isDarkMode ? 'text-gray-300' : 'text-gray-600']">
+                    点击复制wget命令
+                  </p>
+                </div>
               </div>
-              <p class="mt-2 text-sm" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-600']">
-                扫描二维码快速取件
-              </p>
+
+              <!-- 右侧二维码 -->
+              <div class="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 sm:p-5 flex flex-col items-center">
+                <div class="bg-white p-3 sm:p-4 rounded-lg shadow-sm mb-3 sm:mb-4">
+                  <QRCode :value="getQRCodeValue(selectedRecord)" :size="140" level="M" class="sm:w-[160px] sm:h-[160px]" />
+                </div>
+                <p class="text-xs sm:text-sm" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']">
+                  扫描二维码快速取件
+                </p>
+              </div>
             </div>
           </div>
 
-          <button @click="selectedRecord = null"
-            class="mt-8 w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-6 py-3 rounded-lg font-medium hover:from-indigo-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50 transition duration-300 transform hover:scale-105">
-            关闭
-          </button>
+          <!-- 底部操作栏 -->
+          <div class="px-4 sm:px-6 py-3 sm:py-4 border-t" :class="[isDarkMode ? 'border-gray-800' : 'border-gray-100']">
+            <button @click="copyRetrieveLink(selectedRecord.retrieveCode)"
+              class="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg text-sm sm:text-base font-medium transition-colors">
+              复制取件链接
+            </button>
+          </div>
         </div>
       </div>
     </transition>
@@ -300,14 +335,16 @@ import {
   ClockIcon,
   EyeIcon,
   ShieldCheckIcon,
-  ClipboardCopyIcon
+  ClipboardCopyIcon,
+  TerminalIcon,
+  QrCodeIcon
 } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import BorderProgressBar from '@/components/common/BorderProgressBar.vue'
 import QRCode from 'qrcode.vue'
 import { useFileDataStore } from '../stores/fileData'
 import api from '@/utils/api'
-import { copyRetrieveLink, copyRetrieveCode } from '@/utils/clipboard'
+import { copyRetrieveLink, copyRetrieveCode, copyWgetCommand } from '@/utils/clipboard'
 import { getStorageUnit } from '@/utils/convert'
 
 const config: any = JSON.parse(localStorage.getItem('config') || '{}')
