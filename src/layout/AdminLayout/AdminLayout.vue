@@ -109,7 +109,9 @@ const menuItems: MenuItem[] = [
   { id: 'Dashboard', name: '仪表盘', icon: LayoutDashboardIcon, redirect: '/admin/dashboard' },
   { id: 'FileManage', name: '文件管理', icon: FolderIcon, redirect: '/admin/files' },
   { id: 'Settings', name: '系统设置', icon: CogIcon, redirect: '/admin/settings' },
-  { id: 'Locals', name: '本地文件', icon: FolderIcon, redirect: '/admin/local' }
+  { id: 'Locals', name: '本地文件', icon: FolderIcon, redirect: '/admin/local' },
+  { id: 'Logs', name: '日志管理', icon: FolderIcon, redirect: '/admin/logs' },
+  { id: 'Users', name: '用户管理', icon: FolderIcon, redirect: '/admin/users' }
 ]
 
 const isSidebarOpen = ref(true)

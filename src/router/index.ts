@@ -20,6 +20,16 @@ const router = createRouter({
       component: SendFileView
     },
     {
+      path: '/approve',
+      name: 'Approve',
+      component: () => import('@/views/approval/ApprovalFlowView.vue')
+    },
+    {
+      path: '/flowchart',
+      name: 'FlowChart',
+      component: () => import('@/views/approval/Flowchart.vue')
+    },
+    {
       path: '/admin',
       name: 'Manage',
       component: () => import('@/layout/AdminLayout/AdminLayout.vue'),
@@ -44,6 +54,16 @@ const router = createRouter({
           path: '/admin/local',
           name: 'Locals',
           component: () => import('@/views/manage/LocalView.vue'),
+        },
+        {
+          path: '/admin/users',
+          name: 'Users',
+          component: () => import('@/views/manage/UserView.vue')
+        },
+        {
+          path: '/admin/logs',
+          name: 'Logs',
+          component: () => import('@/views/manage/UserLogView.vue')
         }
       ]
     },
