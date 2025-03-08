@@ -30,93 +30,109 @@
           <SearchIcon class="w-5 h-5 mr-2" />
           搜索
         </button>
+        <button
+          @click="handleExactSearch"
+          class="flex items-center px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition-colors duration-200"
+        >
+          <SearchIcon class="w-5 h-5 mr-2" />
+          精准查询
+        </button>
       </div>
   
       <!-- 卡片列表 -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div
-          v-for="file in paginatedFiles"
-          :key="file.name"
-          class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 transition-colors duration-300"
-        >
-          <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-medium dark:text-white">{{ file.fileName }}</h3>
-            <span class="text-sm dark:text-gray-400">{{ file.ctime }}</span>
-          </div>
-          <div class="mb-4">
-            <span class="text-sm font-medium dark:text-gray-400">所有者: {{ file.owner }}</span>
-          </div>
-          <div class="flex justify-end space-x-2">
-            <button
-              @click="shareLocalFile(file)"
-              class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors duration-200"
-            >
-              分享
-            </button>
-            <button
-              @click="deleteLocalFile(file)"
-              class="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors duration-200"
-            >
-              删除
-            </button>
+      <div v-if="loading" class="flex justify-center items-center h-full">
+        <svg class="animate-spin h-8 w-8 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+        </svg>
+        <span class="text-lg dark:text-white ml-4">加载中...</span>
+      </div>
+      <div v-else>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div
+            v-for="file in paginatedFiles"
+            :key="file.name"
+            class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 transition-colors duration-300"
+          >
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-lg font-medium dark:text-white">{{ file.fileName }}</h3>
+              <span class="text-sm dark:text-gray-400">{{ file.ctime }}</span>
+            </div>
+            <div class="mb-4">
+              <span class="text-sm font-medium dark:text-gray-400">所有者: {{ file.owner }}</span>
+            </div>
+            <div class="flex justify-end space-x-2">
+              <button
+                @click="shareLocalFile(file)"
+                class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors duration-200"
+              >
+                分享
+              </button>
+              <button
+                @click="deleteLocalFile(file)"
+                class="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors duration-200"
+              >
+                删除
+              </button>
+            </div>
           </div>
         </div>
-      </div>
   
-      <!-- 分页 -->
-      <div class="mt-6 flex justify-end items-center">
-        <span class="text-sm dark:text-gray-400 mr-4">
-          显示第 {{ (currentPage - 1) * pageSize + 1 }} 到 {{ Math.min(currentPage * pageSize, filteredFiles.length) }} 条，共 {{ filteredFiles.length }} 条
-        </span>
-        <button
-          @click="handlePageChange(currentPage - 1)"
-          :disabled="currentPage === 1"
-          class="px-3 py-1 rounded-md transition-colors duration-200"
-          :class="[
-            isDarkMode
-              ? currentPage === 1
-                ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
-                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-              : currentPage === 1
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-          ]"
-        >
-          上一页
-        </button>
-        <div class="flex justify-center space-x-2 mx-4">
+        <!-- 分页 -->
+        <div class="mt-6 flex justify-end items-center">
+          <span class="text-sm dark:text-gray-400 mr-4">
+            显示第 {{ (currentPage - 1) * pageSize + 1 }} 到 {{ Math.min(currentPage * pageSize, totalFiles) }} 条，共 {{ totalFiles }} 条
+          </span>
           <button
-            v-for="page in displayedPages"
-            :key="page"
-            @click="handlePageChange(Number(page))"
+            @click="handlePageChange(currentPage - 1)"
+            :disabled="currentPage === 1"
+            class="px-3 py-1 rounded-md transition-colors duration-200"
             :class="[
-              'px-3 py-1 rounded-md transition-colors duration-200',
-              currentPage === page
-                ? 'bg-indigo-600 text-white'
-                : isDarkMode
-                  ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+              isDarkMode
+                ? currentPage === 1
+                  ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                : currentPage === 1
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             ]"
           >
-            {{ page }}
+            上一页
+          </button>
+          <div class="flex justify-center space-x-2 mx-4">
+            <button
+              v-for="page in displayedPages"
+              :key="page"
+              @click="handlePageChange(Number(page))"
+              :class="[
+                'px-3 py-1 rounded-md transition-colors duration-200',
+                currentPage === page
+                  ? 'bg-indigo-600 text-white'
+                  : isDarkMode
+                    ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              ]"
+            >
+              {{ page }}
+            </button>
+          </div>
+          <button
+            @click="handlePageChange(currentPage + 1)"
+            :disabled="currentPage === totalPages"
+            class="px-3 py-1 rounded-md transition-colors duration-200"
+            :class="[
+              isDarkMode
+                ? currentPage === totalPages
+                  ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                : currentPage === totalPages
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            ]"
+          >
+            下一页
           </button>
         </div>
-        <button
-          @click="handlePageChange(currentPage + 1)"
-          :disabled="currentPage === totalPages"
-          class="px-3 py-1 rounded-md transition-colors duration-200"
-          :class="[
-            isDarkMode
-              ? currentPage === totalPages
-                ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
-                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-              : currentPage === totalPages
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-          ]"
-        >
-          下一页
-        </button>
       </div>
   
       <div v-if="dialogFormVisible" class="fixed inset-0 flex items-center justify-center z-50">
@@ -172,18 +188,29 @@
   const alertStore = useAlertStore()
   const currentPage = ref(1)
   const pageSize = ref(6)
+  const totalFiles = ref(0)
+  const loading = ref(false)
   
   const loadLocalFiles = async () => {
+    loading.value = true
     try {
       const data: any = await api({
         url: '/admin/local/lists',
-        method: 'get'
+        method: 'get',
+        params: {
+          page: currentPage.value,
+          pageSize: pageSize.value,
+          search: searchKeyword.value
+        }
       })
-      localFiles.value = data.detail
+      localFiles.value = data.detail.data
+      totalFiles.value = data.detail.total
       alertStore.showAlert('加载成功', 'success')
     } catch (error) {
       console.error('加载本地文件列表失败:', error)
       alertStore.showAlert('加载失败', 'error')
+    } finally {
+      loading.value = false
     }
   }
   
@@ -229,30 +256,51 @@
     }
   }
   
-  const handleSearch = () => {
-    // 触发搜索逻辑
+  const handleSearch = async () => {
+    currentPage.value = 1
+    await loadLocalFiles()
+  }
+
+  const handleExactSearch = async () => {
+    currentPage.value = 1
+    await loadExactFiles()
+  }
+
+  const loadExactFiles = async () => {
+    loading.value = true
+    try {
+      const data: any = await api({
+        url: '/admin/local/find',
+        method: 'get',
+        params: {
+          page: currentPage.value,
+          pageSize: pageSize.value,
+          search: searchKeyword.value
+        }
+      })
+      localFiles.value = data.detail.data
+      totalFiles.value = data.detail.total
+      alertStore.showAlert('加载成功', 'success')
+    } catch (error) {
+      console.error('加载本地文件列表失败:', error)
+      alertStore.showAlert('加载失败', 'error')
+    } finally {
+      loading.value = false
+    }
   }
   
-  const filteredFiles = computed(() => {
-    if (!searchKeyword.value) {
-      return localFiles.value
-    }
-    return localFiles.value.filter((file: any) =>
-      file.file.toLowerCase().includes(searchKeyword.value.toLowerCase())
-    )
-  })
-  
+  const filteredFiles = computed(() => localFiles.value)
+ 
   const paginatedFiles = computed(() => {
-    const start = (currentPage.value - 1) * pageSize.value
-    const end = start + pageSize.value
-    return filteredFiles.value.slice(start, end)
+    return filteredFiles.value
   })
   
-  const totalPages = computed(() => Math.ceil(filteredFiles.value.length / pageSize.value))
+  const totalPages = computed(() => Math.ceil(totalFiles.value / pageSize.value))
   
-  const handlePageChange = (page: number) => {
+  const handlePageChange = async (page: number) => {
     if (page < 1 || page > totalPages.value) return
     currentPage.value = page
+    await loadLocalFiles()
   }
   
   const displayedPages = computed(() => {
@@ -326,5 +374,10 @@
   .file-date {
     font-size: 12px;
     color: #a0a0b2;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
   }
   </style>
